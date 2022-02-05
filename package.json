@@ -3,7 +3,14 @@
     "body-parser": "^1.19.1",
     "concurrently": "^7.0.0",
     "cors": "^2.8.5",
-    "draft-js": "^0.11.7",
-    "express": "^4.17.2"
+    "express": "^4.17.2",
+    "node-fetch": "^3.2.0"
+  },
+  "scripts": {
+    "start": "concurrently --kill-others \"nodemon ./api/mock-api.js\" \"npm start --prefix react-oracle",
+    "test": "concurrently --kill-others \"nodemon ./api/mock-api.js\" \"node ./api/test-api.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
