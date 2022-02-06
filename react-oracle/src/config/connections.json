@@ -1,0 +1,12 @@
+[
+    {   
+        "server": "MTL_WAREHOUSE_DEV",
+        "user": "PROD",
+        "password": "deevedev1"
+    },
+    {
+        "server": "MTL_WAREHOUSE_DEV",
+        "user": "AUO_DRIVER_SCORECARD_PROCS",
+        "password": "auo22drvscrd79prc"
+    }
+]

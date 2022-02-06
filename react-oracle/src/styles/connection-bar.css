@@ -1,0 +1,32 @@
+div.connection-bar-container{
+    display:flex;
+    height: 100%;
+    outline: none;
+}
+
+div.connection-bar-label-container, div.connection-bar-select-container, div.connection-bar-status-container {
+    display: inline-block;
+    height: 100%;
+    outline: none;
+    padding-right:15px;
+}
+
+div.connection-bar-status-container {
+    width: 150px;
+    text-align: center;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+select.connection-bar-select {
+    width: 500px;
+    height: 90%;
+}
+
+.connection-bar-status-ind-connected {
+    color: limegreen;
+}
+
+.connection-bar-status-ind-not-connected {
+    color: #888;
+}

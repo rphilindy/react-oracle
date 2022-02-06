@@ -1,0 +1,75 @@
+/*body takes up full viewport and viewport default background & font, including react root div*/
+html, body, #root
+{
+    height: 100vh;
+    margin: 0px;
+    padding: 0px;
+    background: #282c34;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif; /*the react defaults*/
+    font-size:  14px;
+
+}
+
+/* creates a margin without creating a scrollbar */
+div.layout-outermost-container {
+    height: 100%;
+    box-sizing: border-box; /*keep the padding from creating a vertical scrollbar*/
+    padding: 10px;
+}
+
+div.layout-outermost-container > div {
+    display: flex;
+    height: 100%;
+    box-sizing: border-box; /*keep the padding from creating a vertical scrollbar*/
+    outline: 1px solid #222;
+    outline-offset: -1px;
+}
+
+div.layout-workspaces-container {
+    height: 100%;
+    width: 10vw;
+    box-sizing: border-box; /*keep the padding from creating a vertical scrollbar*/
+    padding: 10px;
+    outline: 1px solid #222;
+    outline-offset: -1px;
+}
+
+div.layout-workspaces-container > div {
+    display: flex;
+    height: 100%;
+    box-sizing: border-box; 
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+div.layout-right-of-workspaces-container {
+    height: 100%;
+    width: 90vw;
+    box-sizing: border-box; /*keep the padding from creating a vertical scrollbar*/
+    padding: 10px;
+    outline: 1px solid #222;
+    outline-offset: 0px;
+}
+
+div.layout-right-of-workspaces-container > div {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box; 
+    outline: 1px solid #444;
+    outline-offset: 0px;
+}
+
+div.layout-connection-container {
+    box-sizing: border-box; 
+    height: 40px;
+    line-height: 25px; /*height - (padding * 2) - padding*/
+    padding: 5px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    overflow: hidden;
+}
