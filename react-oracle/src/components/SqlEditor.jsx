@@ -1,20 +1,19 @@
 //alert modal for this app
 
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {Editor, EditorState, ContentState, SelectionState, Modifier, getDefaultKeyBinding} from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import '../styles/sql-editor.css';
 
 export default function SqlEditor(props) {
 
-    //sendInfo - when updated, forces a call to handleSendInfo
-    const {sendInfo} = props;
-    const handleSendInfo = props.handleSendInfo || (()=>{});
+    const handleGetMethods = props.handleGetMethods || (()=>{});
 
 
     const [editorState, setEditorState] = useState(EditorState.createWithContent(ContentState.createFromText("select * from dual"))); 
     const lastFocusedSelection = useRef(null);
     const blurredSelectionShown = useRef(false);
+    const errorSelectionShown = useRef(false);
     const TAB_SIZE = 4;
     
     //todo: can't we write this into css? https://dev.to/tumee/how-to-style-draft-js-editor-3da2
@@ -29,17 +28,17 @@ export default function SqlEditor(props) {
         },
       };
   
-    
+    //send function pointers back to parent. apparently this needs to be done on every useEffect
+    useEffect(()=>handleGetMethods({getSqlAndStart, highlightErrorAtPosition}));
 
     return <div className="sql-editor-container">
         <Editor 
-        customStyleMap={customStyleMap}        
-        editorState={editorState} 
-        onChange={handleEditorStateChange} 
-        handleKeyCommand={handleKeyCommand}
-        keyBindingFn={keyBindingFn}
-        
-    />
+            customStyleMap={customStyleMap}        
+            editorState={editorState} 
+            onChange={handleEditorStateChange} 
+            handleKeyCommand={handleKeyCommand}
+            keyBindingFn={keyBindingFn}
+        />
     </div>;
 
     //any state change to draft-js editor
@@ -51,21 +50,24 @@ export default function SqlEditor(props) {
         if(selectionState.hasFocus) {
             lastFocusedSelection.current = selectionState;
             removeSelectedOnFocus();
-            
         }
 
         //all roads must lead here
         setEditorState(newEditorState);
-        //console.log(editorState.getSelection().getFocusOffset());
 
         if(!selectionState.hasFocus)
             showSelectedOnBlur();
+        else
+            removeHighlightedError(); //todo: this removes error selection on focus. can we do it when key pressed?
+
+        
     }
 
 
 
     //intercept the tab key... logic in handleKeyCommand
     function keyBindingFn(e)  {
+
         if (e.keyCode === 9 && !e.shiftKey) 
         return 'tab_command';
         if (e.keyCode === 9 && e.shiftKey) 
@@ -90,8 +92,6 @@ export default function SqlEditor(props) {
     return 'not-handled'; 
     }
     
-    
-
     //tab key indent
     function indent() {
 
@@ -168,14 +168,14 @@ export default function SqlEditor(props) {
 
     function removeSelectedOnFocus() {
 
+        if(!blurredSelectionShown.current)
+        return;
 
         setTimeout(()=>{
 
-            if(!blurredSelectionShown.current)
-                return;
             let contentState = editorState.getCurrentContent();
-            let firstBlock = contentState.getFirstBlock();
-            let lastBlock = contentState.getLastBlock();
+            const firstBlock = contentState.getFirstBlock();
+            const lastBlock = contentState.getLastBlock();
             const fullContentSelection = new SelectionState({
                 anchorKey: firstBlock.key,
                 anchorOffset: 0,
@@ -189,6 +189,113 @@ export default function SqlEditor(props) {
             newEditorState = EditorState.forceSelection(newEditorState, lastFocusedSelection.current);
             setEditorState(newEditorState); //no undo
             blurredSelectionShown.current = false;
+        },300);
+    }
+
+    function getSqlAndStart() {
+
+
+        const contentState = editorState.getCurrentContent();
+        const selectionState = lastFocusedSelection.current;
+        const startKey = selectionState.getStartKey();
+        const startOffset = selectionState.getStartOffset();
+        const endKey = selectionState.getEndKey();
+        const endOffset = selectionState.getEndOffset();
+        let startPos = 0;  
+        let sql;
+    
+        let block = contentState.getFirstBlock();
+  
+        while(block.key !== startKey){
+          startPos += block.text.length + 1;
+          block=contentState.getBlockAfter(block.key); 
+        }
+  
+        startPos += startOffset;
+        sql = block.text.substring(startOffset);
+        if(endKey === startKey)
+            sql = sql.substring(0, endOffset - startOffset);
+        else {
+            sql += "\n";
+
+            block=contentState.getBlockAfter(block.key);
+  
+            while(block.key !== endKey){
+                sql += block.text + "\n";
+                block=contentState.getBlockAfter(block.key); 
+            }
+      
+            sql += block.text.substring(0,endOffset);
+        }
+  
+
+        if(selectionState.getStartKey() === selectionState.getEndKey() && selectionState.getAnchorOffset() === selectionState.getFocusOffset())
+             sql = editorState.getCurrentContent().getPlainText();
+
+        return {sql, startPos};
+    }
+    
+    function highlightErrorAtPosition(pos) {
+        
+        setTimeout(()=>{
+            let contentState = editorState.getCurrentContent();
+            let block = contentState.getFirstBlock();
+            let len = 0;
+            while(len + block.text.length < pos){
+            len = len + block.text.length + 1;
+            block=contentState.getBlockAfter(block.key); 
+            }
+
+            let sql = block.text.substring(pos - len) + ' ';
+            sql = sql.split(/[\s;]/)[0];
+
+
+            //saved selection && full selection
+            const firstBlock = contentState.getFirstBlock();
+            const lastBlock = contentState.getLastBlock();
+            const selectionState = new SelectionState({anchorKey: block.key, anchorOffset: pos - len, focusKey: block.key, focusOffset: pos - len + sql.length});
+            const fullContentSelection = new SelectionState({
+                anchorKey: firstBlock.key,
+                anchorOffset: 0,
+                focusKey: lastBlock.key,
+                focusOffset: lastBlock.text.length,
+                isBackward: false,
+            }); 
+
+            contentState = Modifier.removeInlineStyle(contentState, fullContentSelection, 'ERROR');    
+            contentState = Modifier.applyInlineStyle(contentState, selectionState, 'ERROR');    
+            let newEditorState = EditorState.createWithContent(contentState);
+            setEditorState(newEditorState); //no undo
+            errorSelectionShown.current = true;
+        
+        }, 1);
+        
+        
+    }
+
+    function removeHighlightedError() {
+
+        if(!errorSelectionShown.current)
+            return;
+        setTimeout(()=>{
+            const sel = lastFocusedSelection.current;
+
+            let contentState = editorState.getCurrentContent();
+            let firstBlock = contentState.getFirstBlock();
+            let lastBlock = contentState.getLastBlock();
+            const fullContentSelection = new SelectionState({
+                anchorKey: firstBlock.key,
+                anchorOffset: 0,
+                focusKey: lastBlock.key,
+                focusOffset: lastBlock.text.length,
+                isBackward: false,
+            }); 
+
+            contentState = Modifier.removeInlineStyle(contentState, fullContentSelection, 'ERROR');    
+            let newEditorState = EditorState.createWithContent(contentState);
+            newEditorState = EditorState.forceSelection(newEditorState, sel);
+            setEditorState(newEditorState); //no undo
+            errorSelectionShown.current = false;
         },300);
     }
 

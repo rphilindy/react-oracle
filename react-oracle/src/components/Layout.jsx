@@ -16,12 +16,13 @@ export default function Layout() {
     const[modal, setModal] = useState(null); //{heading: 'Error', content: 'Message'} to show dialog
     const api = API();           
     const {disconnect, connect} = LayoutFuncs(); //access to functions
-    const connectionId = useRef(null);
+    const connectionId = useRef(null); //unique id for the connection from the API (so multiple windows have their pwn connection)
+    const editorMethods = useRef(null); //functions in sqlEditor
 
     //show only the layout with labels
     const showLayoutLabelsOnly = false;
 
-    //connection was changed
+    //connection was changed: todo: this raises a warning about asyncs but trying to fix it didn't work
     useEffect(async ()=>{
 
         //disconnect if connected
@@ -66,6 +67,12 @@ export default function Layout() {
             <div>
                 {connectionContainer()}
                 {sqlEditorContainer()}
+
+
+                <div>
+                <button onClick={()=>alert(JSON.stringify(editorMethods.current.getSqlAndStart()))}>getInfo()</button>
+                <button onClick={()=>editorMethods.current.highlightErrorAtPosition(10)}>highlightErrorAtPosition()</button>
+                </div>
             </div>    
         </div>;
     }
@@ -78,7 +85,7 @@ export default function Layout() {
 
     function sqlEditorContainer() {
         return <div className="layout-sql-editor-container">
-            {showLayoutLabelsOnly ? 'sql editor container' : <SqlEditor />}
+            {showLayoutLabelsOnly ? 'sql editor container' : <SqlEditor handleGetMethods={(methods) => editorMethods.current = methods}/>}
         </div>;
     }
 
