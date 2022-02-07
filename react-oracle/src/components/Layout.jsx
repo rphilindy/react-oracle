@@ -29,7 +29,7 @@ export default function Layout() {
         await disconnect(connectionId, setConnectionStatus, api, setModal);
         
         //connect if connect selected and not connected
-        await connect(selectedConnection, connectionId, setConnectionStatus, api, setModal);
+        await connect(selectedConnection, connectionId, setConnectionStatus, api, setModal, setSelectedConnection);
 
     },[selectedConnection]);
 
@@ -68,18 +68,13 @@ export default function Layout() {
                 {connectionContainer()}
                 {sqlEditorContainer()}
 
-
-                <div>
-                <button onClick={()=>alert(JSON.stringify(editorMethods.current.getSqlAndStart()))}>getInfo()</button>
-                <button onClick={()=>editorMethods.current.highlightErrorAtPosition(10)}>highlightErrorAtPosition()</button>
-                </div>
             </div>    
         </div>;
     }
 
     function connectionContainer() {
         return <div className="layout-connection-container">
-            {showLayoutLabelsOnly ? 'connection container' : <ConnectionBar connectionStatus={connectionStatus} handleConnectionChange={(conn)=>setSelectedConnection(conn)} />}
+            {showLayoutLabelsOnly ? 'connection container' : <ConnectionBar connectionStatus={connectionStatus} handleConnectionChange={(conn)=>setSelectedConnection(conn)} selectedConnection={selectedConnection}/>}
         </div>;
     }
 

@@ -11,9 +11,11 @@ export default function SqlEditor(props) {
 
 
     const [editorState, setEditorState] = useState(EditorState.createWithContent(ContentState.createFromText("select * from dual"))); 
+    const [statusBar, setStatusBar] = useState({line:1, column: 1});
     const lastFocusedSelection = useRef(null);
     const blurredSelectionShown = useRef(false);
     const errorSelectionShown = useRef(false);
+    const editor = useRef(null);
     const TAB_SIZE = 4;
     
     //todo: can't we write this into css? https://dev.to/tumee/how-to-style-draft-js-editor-3da2
@@ -29,17 +31,21 @@ export default function SqlEditor(props) {
       };
   
     //send function pointers back to parent. apparently this needs to be done on every useEffect
-    useEffect(()=>handleGetMethods({getSqlAndStart, highlightErrorAtPosition}));
+    useEffect(()=>handleGetMethods({getSqlAndStart, highlightErrorAtPosition, removeHighlightedError}));
 
-    return <div className="sql-editor-container">
+    return <React.Fragment>
+        <div className="sql-editor-container" onClick={()=>editor.current.focus()}>
         <Editor 
+            ref={editor}
             customStyleMap={customStyleMap}        
             editorState={editorState} 
             onChange={handleEditorStateChange} 
             handleKeyCommand={handleKeyCommand}
             keyBindingFn={keyBindingFn}
         />
-    </div>;
+        </div>
+        <div className="sql-editor-statusbar">Line {statusBar.line}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column {statusBar.column}</div>
+    </React.Fragment>;
 
     //any state change to draft-js editor
     function handleEditorStateChange(newEditorState){
@@ -48,8 +54,12 @@ export default function SqlEditor(props) {
         //also remove the selection indication
         const selectionState=newEditorState.getSelection();
         if(selectionState.hasFocus) {
+
             lastFocusedSelection.current = selectionState;
             removeSelectedOnFocus();
+
+            const linesBefore = newEditorState.getCurrentContent().getBlockMap().takeUntil( b => b.getKey() == selectionState.getFocusKey()).size;
+            setStatusBar({line: linesBefore + 1, column: selectionState.getFocusOffset() + 1});
         }
 
         //all roads must lead here
@@ -60,7 +70,6 @@ export default function SqlEditor(props) {
         else
             removeHighlightedError(); //todo: this removes error selection on focus. can we do it when key pressed?
 
-        
     }
 
 
@@ -117,9 +126,9 @@ export default function SqlEditor(props) {
 
             //new start point for force selection
             if(key === startKey)
-                newStartSelection = SelectionState.createEmpty(key).merge({anchorOffset: insertPoint + insertChars, focusOffset: insertPoint + insertChars, hasFocus: true}); // make sure final sel hasFocus
+                newStartSelection = SelectionState.createEmpty(key).merge({anchorOffset: insertPoint + insertChars, focusOffset: insertPoint + insertChars});
 
-            //new start point for force selection
+            //new end point for force selection
             if(key === endKey)
                 newEndSelection = SelectionState.createEmpty(key).merge({anchorOffset: selectionState.getEndOffset(), focusOffset: selectionState.getEndOffset() + insertChars}); 
 
@@ -143,7 +152,63 @@ export default function SqlEditor(props) {
 
     //todo - shift-tab outdent
     function outdent(){
+        let contentState = editorState.getCurrentContent();
+        const selectionState = lastFocusedSelection.current;
+        const startKey = selectionState.getStartKey();
+        const endKey = selectionState.getEndKey();
+        let key = startKey;
+        let block = contentState.getBlockForKey(key);
+        let newStartSelection, newEndSelection;
+        let removeChars = 0;
 
+        while(true) {
+
+            //where will we add chars
+            let  caretPoint = key === startKey ? selectionState.getStartOffset() : removeChars;
+            if(caretPoint === 0)
+                return;
+
+            //how many will we add (go to next tab)    
+            removeChars = caretPoint % TAB_SIZE;
+            if(removeChars === 0) 
+                removeChars = TAB_SIZE;
+            if(removeChars > caretPoint)
+                removeChars = caretPoint;
+                
+            caretPoint -= removeChars;
+
+            //remove at caret point
+            let lineRemoveChars = block.getText().search(/[^\s]/);
+            if(lineRemoveChars === -1) lineRemoveChars = block.getText().length + 1; 
+            if(lineRemoveChars > removeChars) lineRemoveChars = removeChars;
+            const blockSelection = SelectionState.createEmpty(key).merge({anchorOffset: 0, focusOffset: lineRemoveChars});
+            contentState = Modifier.replaceText(contentState, blockSelection, '');
+
+            //new start point for force selection
+            if(key === startKey)
+                newStartSelection = SelectionState.createEmpty(key).merge({anchorOffset: caretPoint, focusOffset: caretPoint});
+
+            //new end point for force selection
+            if(key === endKey)
+                newEndSelection = SelectionState.createEmpty(key).merge({anchorOffset: selectionState.getEndOffset(), focusOffset: selectionState.getEndOffset() - lineRemoveChars}); 
+
+            //quit loop    
+            if(key === endKey) 
+                break;
+
+            block = contentState.getBlockAfter(key);
+            key = block.key;
+        }
+
+        //new selection
+        const newSelection = SelectionState.createEmpty(startKey).merge({anchorKey: startKey, anchorOffset: newStartSelection.anchorOffset, focusKey: endKey, focusOffset: newEndSelection.focusOffset, hasFocus: true}); //must have focuse for update of lastFocusedSelection
+
+        //apply the content state and allow undo
+        let newEditorState = EditorState.push(editorState, contentState, 'change-block-data');
+        newEditorState = EditorState.forceSelection(newEditorState, newSelection);
+        setEditorState(newEditorState);
+        handleEditorStateChange(newEditorState);
+    
     }
 
     function showSelectedOnBlur() {
@@ -273,6 +338,7 @@ export default function SqlEditor(props) {
         
     }
 
+    //if an error is shown, remove it (called from handleEditorChange, first runs when gets focus, or called from parent)
     function removeHighlightedError() {
 
         if(!errorSelectionShown.current)

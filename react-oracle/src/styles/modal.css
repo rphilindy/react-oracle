@@ -54,5 +54,10 @@
   .modal-close-btn:hover {
     color: #444;
   }
-  
+
+  .modal-button {
+      font-size: 125%;
+      padding: 5px;
+      min-width: 75px;
+  }
   

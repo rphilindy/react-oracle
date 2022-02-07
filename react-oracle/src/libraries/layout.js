@@ -18,7 +18,7 @@ export default function LayoutFuncs() {
     }
 
     //connect if connect selected and not connected 
-    const connect = async (selectedConnection, connectionId, setConnectionStatus, api, setModal) => {
+    const connect = async (selectedConnection, connectionId, setConnectionStatus, api, setModal, setSelectedConnection) => {
 
         if(selectedConnection && connectionId.current === null) {
             //show connecting status and connect
@@ -27,8 +27,10 @@ export default function LayoutFuncs() {
 
             //connect failure
             if(json.error) {
-                setConnectionStatus(null);
+                setConnectionStatus('disconnected');
                 setModal({heading: 'Connect Error', content: json.error});
+                setSelectedConnection(null);
+                
             }
 
             //success

@@ -1,5 +1,5 @@
 .sql-editor-container {
-    height: 100%;
+    height: calc(100% - 35px);
     width: 100%;
     overflow: scroll;
     padding: 10px;
@@ -18,3 +18,12 @@
     width: fit-content;
 }
 
+.sql-editor-statusbar {
+    height: 20px;
+    line-height: 20px;
+    font-size: 75%;
+    border: 1px solid #888;
+    border-top: none;
+    color: #aaa;
+    padding: 0px 10px 0px 10px;
+}

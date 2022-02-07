@@ -9,6 +9,7 @@ export default function ConnectionBar(props) {
     //show only the layout with labels
     const showLayoutLabelsOnly = false;
     const handleConnectionChange = props.handleConnectionChange || (() => {});
+    const {selectedConnection} = props;
     const connectionStatus = props.connectionStatus;
     const statusText= `${connectionStatus?.toUpperCase()}${connectionStatus?.search(/ing$/) !== -1 ? '...' : ''}`;
     const statusStyle = `connection-bar-status-ind connection-bar-status-ind-${connectionStatus?.replace(/ /g,'-')}`;
@@ -22,7 +23,7 @@ export default function ConnectionBar(props) {
 
     //select box with values of stringified connections or "" for disconnect
     function connectionSelect() {
-        return <select id="connectionSelect" className="connection-bar-select" onChange={bubbleUpConnectionChange}>
+        return <select id="connectionSelect" className="connection-bar-select" onChange={bubbleUpConnectionChange} value={selectedConnection === null? "" : JSON.stringify(selectedConnection)}>
             <option value="">(Disconnect)</option>
             {connectionConfig.map((cfg,idx) => <option key={idx} value={JSON.stringify(cfg)}>{`${cfg.user}@${cfg.server}`}</option>)}
         </select>;
