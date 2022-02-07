@@ -23,10 +23,11 @@ select.connection-bar-select {
     height: 90%;
 }
 
+.connection-bar-status-ind {
+    color: #888;
+}
+
 .connection-bar-status-ind-connected {
     color: limegreen;
 }
 
-.connection-bar-status-ind-not-connected {
-    color: #888;
-}

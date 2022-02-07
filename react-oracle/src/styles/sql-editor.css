@@ -1,0 +1,20 @@
+.sql-editor-container {
+    height: 100%;
+    width: 100%;
+    overflow: scroll;
+    padding: 10px;
+    box-sizing: border-box;
+    border:1px solid #888;
+    white-space: no-wrap;
+    font-family: consolas;
+    outline: none;
+    outline-offset: -1px;
+}
+
+
+/*allow horizontal scroll. todo - why does this shrink the workspaces?*/
+.DraftEditor-editorContainer {
+    white-space: no-wrap; 
+    width: fit-content;
+}
+

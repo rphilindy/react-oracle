@@ -10,9 +10,8 @@ export default function ConnectionBar(props) {
     const showLayoutLabelsOnly = false;
     const handleConnectionChange = props.handleConnectionChange || (() => {});
     const connectionStatus = props.connectionStatus;
-
-    const statusText= props.connectionStatus == 'connected' ? 'Connected' : 'Not Connected';
-    const statusStyle = props.connectionStatus == 'connected' ? "connection-bar-status-ind-connected" : "connection-bar-status-ind-not-connected";
+    const statusText= `${connectionStatus?.toUpperCase()}${connectionStatus?.search(/ing$/) !== -1 ? '...' : ''}`;
+    const statusStyle = `connection-bar-status-ind connection-bar-status-ind-${connectionStatus?.replace(/ /g,'-')}`;
 
     return <div className="connection-bar-container">
         <div className="connection-bar-label-container">{showLayoutLabelsOnly ? 'Label' : <label htmlFor="connectionSelect">Connection:</label>}</div>

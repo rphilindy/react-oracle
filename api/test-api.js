@@ -5,10 +5,14 @@ var assert = require('assert');
 const urlBase="http://localhost:3001/";  
 
 
-const callApiMethod = async (endpoint) => {
-    const response = await fetch(`${urlBase}${endpoint}`);
-    const json = await response.json();
-    return json;
+const callApiMethod = async (endpoint, json)  => {
+    const response = await fetch(`${urlBase}${endpoint}`,{
+        method: json ? 'POST' : 'GET', 
+        body: json ? JSON.stringify(json) : null,
+        headers: json ? { 'Content-Type': 'application/json' } : {}
+    });
+    const data = await response.json();
+    return data;
 }
 
 (async () => {
@@ -42,6 +46,27 @@ const callApiMethod = async (endpoint) => {
         assert(json.message === 'hello');
     }
     await testHelloWorld();
+
+    //connect
+    let connectionId;
+    const testConnect = async () => {
+        const json = await callApiMethod('connect', {});
+        assert(json.connectionId > 0);
+        assert(json.timeSpan > 0);
+        connectionId = json.connectionId;        
+    }
+    await testConnect();
+
+    //disconnect
+    const testDisconnect = async () => {
+        const json = await callApiMethod('disconnect', {connectionId});
+        assert(json.timeSpan > 0);
+        connectionId = undefined;        
+    }
+    await testDisconnect();
+
+    //reconnect
+    await testConnect();
 
     
     
