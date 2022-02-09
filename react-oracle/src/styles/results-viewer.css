@@ -20,7 +20,7 @@ button.results-viewer-cursor-button {
     white-space: nowrap;
 }
 
-    button.results-viewer-cursor-button:disabled{
+    button.results-viewer-cursor-button:disabled {
         font-weight: bold;
         border-bottom: 1px solid #282c34;  
         cursor: default;      
@@ -42,7 +42,8 @@ div.results-viewer-paging-bar {
     box-sizing: border-box;
     border: 1px solid #aaa;
     height: 32px;
-    line-height: 32px;
+    line-height: 30px;
+    padding: 0px;
 }
 
 table.results-viewer-table {
@@ -60,6 +61,20 @@ table.results-viewer-table td {
     font-size: 90%;
 }
 
+table.results-viewer-table > tbody > tr > td {
+    border: 1px solid black;
+    padding: 3px;
+    font-size: 90%;
+}
+
+table.results-viewer-table > tbody > tr > td:last-child {
+    border-right: 1px solid white;
+}
+
+table.results-viewer-table > tbody > tr:last-child > td {
+    border-bottom: 1px solid white;
+}
+
 table.results-viewer-table > tbody > tr {
     background: #ccc;
     color: #000;        
@@ -72,6 +87,8 @@ table.results-viewer-table > tbody > tr:nth-child(even) {
 table.results-viewer-table > tbody > tr > td:first-child, table.results-viewer-table > thead > tr > td:first-child {
     background:  #282c34;
     color:white;
+    text-align: right;
+    border: 1px solid white;
 }
 
 table.results-viewer-table > thead > tr > td:first-child {
@@ -90,12 +107,20 @@ div.results-viewer-paging-bar button {
     background: transparent;
     border: 1px solid #aaa;
     color:white;
-    font-size: 12px;
+    font-size: 16px;
     border-radius: 5px;
     position: relative;
+    top: -1px;
     cursor: pointer;
     width: 30px;
     min-width: 30px;
+    height:25px;
+    line-height:16px;
+    vertical-align: middle;
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 div.results-viewer-paging-bar button:disabled {
@@ -119,4 +144,12 @@ div.results-view-no-records-placeholder {
     height: 100%;
     border:none;
 
+}
+
+.results-viewer-cell-NUMBER {
+    text-align: right;
+}
+
+.results-viewer-cell-DATE {
+    text-align: center;
 }

@@ -1,4 +1,10 @@
+import generateMockData from './mockResults';
+
 export default function API() {
+
+    const {generate, parse} = generateMockData();
+    const mockData = generate(mockDefs());
+    //let mockCurors = {};
     
     const baseURL = "http://localhost:3001/";
 
@@ -29,79 +35,105 @@ export default function API() {
     }
 
     async function connect(connection) {
-        const json = await callApiMethod('connect', {connection});
+        //const json = await callApiMethod('connect', {connection});
+        await sleep(1000);
+        const json = {connectionId: 12345, span: 1000};
         return json;
     }
 
     async function disconnect(connectionId) {
-        const json = await callApiMethod('disconnect', {connectionId});
+        //const json = await callApiMethod('disconnect', {connectionId});
+        await sleep(1000);
+        const json = {span: 1000};
         return json;
     }
 
     async function execute(connectionId, sql) {
         //const json = await callApiMethod('execute', {connectionId, sql});
-        const json = {
-            xerror: {message: 'Sample Error', position: 0}, 
-            span: 15,
-            results: [{
-                sql: 'select * from dual',    
-                span: 5,
-                xaffected: 155,
-                cursors: [
-                    {name: 'cursor1', 
-                    id: 787183746,
-                    columns:[
-                        {name: 'column1', type: 'varchar2(50)', isLob: false},
-                        ]
-                    },
-                    {name: 'cursor2', 
-                    id: 787183747,
-                    columns:[
-                        {name: 'column2', type: 'varchar2(100)', isLob: false},
-                        ]
-                    },
-                ]
-            },{
-                sql: "update blah blah",
-                span: 11030,
-                affected: 1213
+
+        const stmts = parse(sql);
+        let json = {results: [], span: 1000};
+
+        await sleep(1000);
+        stmts.map(stmt => {
+
+            const mock = mockData.filter(m => m.sql.toUpperCase() === stmt.toUpperCase().trim())[0];
+            if(!mock)  {
+                json.results.push({sql: stmt, error:{message: 'No such mock data'}, span: 23});
+                if(!json.error) json.error = {message: 'No such mock data', position: 0};
             }
-            ,{
-                sql: "delete blah blah",
-                error: "some error message 2",
-            }
-            ]
-        };
-        await sleep(500);
+            else {
+                const id = Math.floor(Math.random() * 10000);
+                if(!window.mockCurors) window.mockCurors = {};
+                window.mockCurors[id] = mock.rows;
+                json.results.push({sql: stmt, span: 23, cursors: [{
+                    name: 'cursor1' ,
+                    id: id,
+                    columns: mock.columns,
+                }]});
+            }    
+            
+        });
+
         return json;
     }
 
     async function getRows(connectionId, cursorId, startRow, numRows) {
         //const json = await callApiMethod('get-rows', {connectionId, cursorId, numRows});
-        debugger;
-        let json = {
-            errorx: {message: 'Sample Error'}, 
-            //rowCount: ,
-            rows: []
-        };
-
-        if(startRow < 0){
-            startRow = Math.floor(42/numRows) * numRows;
-        }
-
-        for(let i=0; i< numRows; ++i) {
-            json.rows.push([startRow + i + 1]);
-        }
-
-        if(startRow + numRows > 42) {
-            json.rowCount = 42;
-            json.rows.splice(42 - startRow);
-        }
-    
-
-        json.startRow = startRow;
-
+        
+        let json ={};
+        let rows = window.mockCurors[cursorId];
+        let start = startRow;
+        if(start == -1) start=Math.floor(rows.length/numRows) * numRows;
+        json.rows = rows.slice(start, start + numRows);
+        if(startRow === -1 || start + numRows > rows.length)
+            json.rowCount = rows.length;
+        json.startRow = start;
+        json.span=25;
         return json;
+    }
+
+
+    function mockDefs() {
+        return [
+            {
+                sql: "select * from dual",
+                rowCount: 1,
+                columns: [
+                    {
+                        name: 'RAND1',
+                        type: 'NUMBER(38)',
+                        value: (i,r) => r,
+                    }
+                ]
+            },
+            {
+                sql: "select * from inst_ord",
+                rowCount: 55,
+                columns: [
+                    {
+                        name: 'INST_ORD_ID',
+                        type: 'NUMBER(38)',
+                        value: i => i + 1000
+                    },
+                    {
+                        name: 'INST_ORD_NO',
+                        type: 'VARCHAR2(50)',
+                        value: i => 'INST' +(i + 1000)
+                    },
+                    {
+                        name: 'UPDATE_DATE',
+                        type: 'DATE',
+                        value: (i,r) => new Date(Math.floor(r*10000) + new Date().getTime())
+                    },
+                    {
+                        name: 'UPDATE_DATE2',
+                        type: 'DATE',
+                        value: (i,r) => new Date()
+                    },
+                ]
+            },
+        ];
     }
 
     return {connect, disconnect, execute, getRows};

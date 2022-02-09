@@ -62,13 +62,24 @@ export default function ResultViewer (props) {
     const thead = showLayoutOnly ? <thead><tr><td></td><td>col1</td><td>col2</td></tr><tr><td></td><td>number</td><td>varchar(20)</td></tr></thead> :
     <thead>
         {state.selectedTab?.affected && <tr><td>{state.selectedTab.affected} record(s) affected</td></tr>}
-        {state.selectedTab?.error && <tr><td>Error: {state.selectedTab.error}</td></tr>}
+        {state.selectedTab?.error && <tr><td>Error: {state.selectedTab.error.message}</td></tr>}
         <tr><td></td>{state.selectedTab?.columns?.map((c,i) => <td key={i}>{c.name}</td>)}</tr>
         <tr><td></td>{state.selectedTab?.columns?.map((c,i) => <td key={i}>{c.type}</td>)}</tr>
     </thead>;
 
+    const cell = (col,j) => {
+        //className based on type
+        const type = state.selectedTab.columns[j]?.type.replace(/[^A-Z]/g,'');
+
+        //dates
+        if(type === "DATE")
+            col = new Date(col).toLocaleString().replace(',','');
+
+        return <td key={j} className={"results-viewer-cell-" + type}>{col}</td>;
+    }
+
     const tbody = showLayoutOnly ? <tbody><tr><td>1</td><td>d1</td><td>d2</td></tr><tr><td>2</td><td>d3</td><td>d4</td></tr></tbody> : 
-        <tbody>{state.rows?.map((row,i) => <tr key={i}><td>{state.startRow + i + 1}</td>{row.map((col, j) => <td key={j}>{col}</td>)}</tr>)}</tbody>;
+        <tbody>{state.rows?.map((row,i) => <tr key={i}><td>{state.startRow + i + 1}</td>{row.map((col, j) => cell(col, j))}</tr>)}</tbody>;
     
 
     const table=<table className="results-viewer-table">{thead}{tbody}</table>;        
@@ -139,7 +150,7 @@ export default function ResultViewer (props) {
             rowCount = cursordata.rowCount;
 
             //round the pages to pagesPerRow boundaries
-            startRow = Math.floor(startRow / rowsPerPage) * rowsPerPage;
+            if(startRow !== -1) startRow = Math.floor(startRow / rowsPerPage) * rowsPerPage;
 
             //get data from API
             const json = await getRows(connectionId, selectedTab.id, startRow, rowsPerPage);
