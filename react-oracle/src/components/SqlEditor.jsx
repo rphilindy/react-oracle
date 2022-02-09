@@ -11,7 +11,7 @@ export default function SqlEditor(props) {
 
 
     const [editorState, setEditorState] = useState(EditorState.createWithContent(ContentState.createFromText("select * from dual"))); 
-    const [statusBar, setStatusBar] = useState({line:1, column: 1});
+    const [statusBar, setStatusBar] = useState({line:1, column: 1, error: null});
     const lastFocusedSelection = useRef(null);
     const blurredSelectionShown = useRef(false);
     const errorSelectionShown = useRef(false);
@@ -44,7 +44,7 @@ export default function SqlEditor(props) {
             keyBindingFn={keyBindingFn}
         />
         </div>
-        <div className="sql-editor-statusbar">Line {statusBar.line}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column {statusBar.column}</div>
+        <div className="sql-editor-statusbar">Line {statusBar.line}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column {statusBar.column}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{statusBar.error}</div>
     </React.Fragment>;
 
     //any state change to draft-js editor
@@ -58,8 +58,8 @@ export default function SqlEditor(props) {
             lastFocusedSelection.current = selectionState;
             removeSelectedOnFocus();
 
-            const linesBefore = newEditorState.getCurrentContent().getBlockMap().takeUntil( b => b.getKey() == selectionState.getFocusKey()).size;
-            setStatusBar({line: linesBefore + 1, column: selectionState.getFocusOffset() + 1});
+            const linesBefore = newEditorState.getCurrentContent().getBlockMap().takeUntil( b => b.getKey() ==- selectionState.getFocusKey()).size;
+            setStatusBar({line: linesBefore + 1, column: selectionState.getFocusOffset() + 1, error: statusBar.error});
         }
 
         //all roads must lead here
@@ -261,7 +261,7 @@ export default function SqlEditor(props) {
 
 
         const contentState = editorState.getCurrentContent();
-        const selectionState = lastFocusedSelection.current;
+        const selectionState = lastFocusedSelection.current || editorState.getSelection(); 
         const startKey = selectionState.getStartKey();
         const startOffset = selectionState.getStartOffset();
         const endKey = selectionState.getEndKey();
@@ -300,8 +300,9 @@ export default function SqlEditor(props) {
         return {sql, startPos};
     }
     
-    function highlightErrorAtPosition(pos) {
-        
+    function highlightErrorAtPosition(pos, errorMsg) {
+
+        setStatusBar({line: statusBar.line, column: statusBar.column, error: errorMsg});
         setTimeout(()=>{
             let contentState = editorState.getCurrentContent();
             let block = contentState.getFirstBlock();
@@ -333,13 +334,17 @@ export default function SqlEditor(props) {
             setEditorState(newEditorState); //no undo
             errorSelectionShown.current = true;
         
+
         }, 1);
         
         
     }
 
     //if an error is shown, remove it (called from handleEditorChange, first runs when gets focus, or called from parent)
-    function removeHighlightedError() {
+    function removeHighlightedError(clearMsg) {
+
+        if(clearMsg)
+            setStatusBar({line: statusBar.line, column: statusBar.column, error: null});
 
         if(!errorSelectionShown.current)
             return;

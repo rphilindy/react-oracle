@@ -2,6 +2,8 @@ export default function API() {
     
     const baseURL = "http://localhost:3001/";
 
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
     async function callApiMethod (endpoint, json) {
 
         try {
@@ -36,6 +38,72 @@ export default function API() {
         return json;
     }
 
-    return {connect, disconnect};
+    async function execute(connectionId, sql) {
+        //const json = await callApiMethod('execute', {connectionId, sql});
+        const json = {
+            xerror: {message: 'Sample Error', position: 0}, 
+            span: 15,
+            results: [{
+                sql: 'select * from dual',    
+                span: 5,
+                xaffected: 155,
+                cursors: [
+                    {name: 'cursor1', 
+                    id: 787183746,
+                    columns:[
+                        {name: 'column1', type: 'varchar2(50)', isLob: false},
+                        ]
+                    },
+                    {name: 'cursor2', 
+                    id: 787183747,
+                    columns:[
+                        {name: 'column2', type: 'varchar2(100)', isLob: false},
+                        ]
+                    },
+                ]
+            },{
+                sql: "update blah blah",
+                span: 11030,
+                affected: 1213
+            }
+            ,{
+                sql: "delete blah blah",
+                error: "some error message 2",
+            }
+            ]
+        };
+        await sleep(500);
+        return json;
+    }
+
+    async function getRows(connectionId, cursorId, startRow, numRows) {
+        //const json = await callApiMethod('get-rows', {connectionId, cursorId, numRows});
+        debugger;
+        let json = {
+            errorx: {message: 'Sample Error'}, 
+            //rowCount: ,
+            rows: []
+        };
+
+        if(startRow < 0){
+            startRow = Math.floor(42/numRows) * numRows;
+        }
+
+        for(let i=0; i< numRows; ++i) {
+            json.rows.push([startRow + i + 1]);
+        }
+
+        if(startRow + numRows > 42) {
+            json.rowCount = 42;
+            json.rows.splice(42 - startRow);
+        }
+    
+
+        json.startRow = startRow;
+
+        return json;
+    }
+
+    return {connect, disconnect, execute, getRows};
 
 }

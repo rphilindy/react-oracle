@@ -1,14 +1,20 @@
+import API from './api';
+
 export default function LayoutFuncs() {
 
-    const disconnect = async (connectionId, setConnectionStatus, api, setModal) => {
+    const api = API();
 
+    const disconnect = async (args) => {
+
+        const {connectionId, setConnectionStatus, setModal, setResultText} = args;
         /////disconnect if connected
         if(connectionId.current) {
             setConnectionStatus('disconnecting');
-            const json=await api.disconnect(connectionId.current);
+            const json=await api.disconnect(connectionId);
             if(json.error) {
                 setConnectionStatus('connected');
-                setModal({heading: 'Disconnect Error', content: json.error});
+                setModal({heading: 'Disconnect Error', content: json.error.message});
+                setResultText(json.error.message);
                 return;
             }
         }
@@ -18,8 +24,8 @@ export default function LayoutFuncs() {
     }
 
     //connect if connect selected and not connected 
-    const connect = async (selectedConnection, connectionId, setConnectionStatus, api, setModal, setSelectedConnection) => {
-
+    const connect = async (args) => {
+        const {selectedConnection, connectionId, setConnectionStatus, setModal, setSelectedConnection, setResultText} = args;
         if(selectedConnection && connectionId.current === null) {
             //show connecting status and connect
             setConnectionStatus('connecting');
@@ -28,7 +34,8 @@ export default function LayoutFuncs() {
             //connect failure
             if(json.error) {
                 setConnectionStatus('disconnected');
-                setModal({heading: 'Connect Error', content: json.error});
+                setModal({heading: 'Connect Error', content: json.error.message});
+                setResultText(json.error.message);
                 setSelectedConnection(null);
                 
             }
@@ -42,5 +49,27 @@ export default function LayoutFuncs() {
 
     }
 
-    return {disconnect, connect};
+    const timeSpanText = (ms) => `${ms} ms`;
+
+    const execute = async (args) => {
+
+        const {connectionId, editorMethods, setModal, setResultBarText, setExecResult} = args;
+        setExecResult(null);
+        setResultBarText("Executing...");
+        const {sql, startPos} = editorMethods.current.getSqlAndStart();
+        const json = await api.execute(connectionId, sql);
+        const {error, span, results} = json;
+        if(error) {
+            const {message, position} = error;
+            editorMethods.current.highlightErrorAtPosition(position);
+            setModal({heading: "SQL Error", content: message});
+            setResultBarText(message);
+        }
+        else {
+            setResultBarText(`Executed in ${timeSpanText(span)}`);
+        }
+        setExecResult(json);
+    }
+
+    return {disconnect, connect, execute};
 }

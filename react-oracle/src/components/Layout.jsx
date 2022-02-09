@@ -2,22 +2,33 @@
 
 import React, {useState, useEffect, useRef} from 'react';
 import { useBeforeunload } from 'react-beforeunload';      //to close connections on unload
+
 import Modal from './Modal';
 import ConnectionBar from './ConnectionBar';
 import SqlEditor from './SqlEditor';
-import API from '../libraries/api';
+import ResultViewer from './ResultViewer';
+
 import LayoutFuncs from '../libraries/layout';
+
 import '../styles/layout.css';
 
 export default function Layout() {
 
+    //state
     const[selectedConnection, setSelectedConnection] = useState(null); //the selection chosen in ConnectionBar
     const[connectionStatus, setConnectionStatus] = useState('disconnected'); //connecting connected disconnecting disconnected
     const[modal, setModal] = useState(null); //{heading: 'Error', content: 'Message'} to show dialog
-    const api = API();           
-    const {disconnect, connect} = LayoutFuncs(); //access to functions
-    const connectionId = useRef(null); //unique id for the connection from the API (so multiple windows have their pwn connection)
+    const[resultBarText, setResultBarText] = useState("Ready");
+    const[execResult, setExecResult] = useState(null); //json returned from api execute
+    
+
+    //refs
     const editorMethods = useRef(null); //functions in sqlEditor
+    const connectionId = useRef(null); //unique id for the connection from the API (so multiple windows have their pwn connection)
+    
+    //libraries
+    const {disconnect, connect, execute} = LayoutFuncs(); //access to functions
+    const args={selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult}; //for every all to LayoutFuncs (layout.js)
 
     //show only the layout with labels
     const showLayoutLabelsOnly = false;
@@ -26,10 +37,10 @@ export default function Layout() {
     useEffect(async ()=>{
 
         //disconnect if connected
-        await disconnect(connectionId, setConnectionStatus, api, setModal);
+        await disconnect(args);
         
         //connect if connect selected and not connected
-        await connect(selectedConnection, connectionId, setConnectionStatus, api, setModal, setSelectedConnection);
+        await connect(args);
 
     },[selectedConnection]);
 
@@ -56,6 +67,11 @@ export default function Layout() {
         </React.Fragment>;
     }
     
+    function modalContainer(){
+        if(!modal) return '';
+        return <Modal heading={modal.heading} content={modal.content} handleCloseClick={()=>setModal(null)}/>;
+    }
+
     function workspacesContainer() {
         return <div className="layout-workspaces-container">
             <div>{showLayoutLabelsOnly ? 'workspaces container' : ''}</div>
@@ -67,6 +83,8 @@ export default function Layout() {
             <div>
                 {connectionContainer()}
                 {sqlEditorContainer()}
+                {commandsContainer()}
+                {resultsContainer()}
 
             </div>    
         </div>;
@@ -84,9 +102,23 @@ export default function Layout() {
         </div>;
     }
 
-    function modalContainer(){
-        if(!modal) return '';
-        return <Modal heading={modal.heading} content={modal.content} handleCloseClick={()=>setModal(null)}/>;
+    function commandsContainer() {
+        return <div className="layout-commands-container">
+            {showLayoutLabelsOnly ? 'commands container' : 
+                <React.Fragment>
+                    <div className="layout-commands-result-text">{resultBarText}</div>
+                    <button disabled={false && connectionId.current === null} onClick={()=> execute(args)}>Execute</button>
+                </React.Fragment>
+            }
+        </div>;
+    }
+
+    function resultsContainer(){
+        return <div className="layout-results-container">
+            {showLayoutLabelsOnly ? 'results container' : 
+                <ResultViewer execResult={execResult} connectionId={connectionId.current} handleError={err => setModal({heading: 'Error', content: err})}/>
+            }
+        </div>;
     }
 }
 

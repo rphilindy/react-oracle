@@ -17,7 +17,7 @@ export default function Modal(props) {
       <div className="modal-content">
         <p>{content}</p>
         <center>
-          <button className="modal-button modal-button-ok" onClick={handleCloseClick} autoFocus="true">OK</button>
+          <button className="modal-button modal-button-ok" onClick={handleCloseClick} autoFocus={true}>OK</button>
         </center>
       </div>
     </div>
