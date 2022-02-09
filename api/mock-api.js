@@ -30,7 +30,7 @@ api.post("/disconnect",  async (req,res) => {
     console.log("API disconnect");
     const {connectionId} = req.body;
     if(!connectionId || !connections[connectionId]) {
-        res.json({error: 'no such connection'});
+        res.json({error: {message: 'no such connection'}});
         return;
     }
     const timeSpan = 1000   ;
