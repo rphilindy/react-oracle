@@ -97,7 +97,7 @@ export default function API() {
     function mockDefs() {
         return [
             {
-                sql: "select * from dual",
+                sql: "select rand1 from dual",
                 rowCount: 1,
                 columns: [
                     {
@@ -108,7 +108,7 @@ export default function API() {
                 ]
             },
             {
-                sql: "select * from inst_ord",
+                sql: "select * from dual",
                 rowCount: 55,
                 columns: [
                     {
@@ -124,12 +124,17 @@ export default function API() {
                     {
                         name: 'UPDATE_DATE',
                         type: 'DATE',
-                        value: (i,r) => new Date(Math.floor(r*10000) + new Date().getTime())
+                        value: (i,r) => new Date(-Math.floor(r*1000000) + new Date().getTime())
                     },
                     {
                         name: 'UPDATE_DATE2',
                         type: 'DATE',
-                        value: (i,r) => new Date()
+                        value: (i,r) => i%2 ? new Date() : null
+                    },
+                    {
+                        name: 'COMMENT',
+                        type: 'CLOB',
+                        value: (i,r) => i%2 ? [i,4] : null
                     },
                 ]
             },

@@ -69,11 +69,15 @@ export default function ResultViewer (props) {
 
     const cell = (col,j) => {
         //className based on type
-        const type = state.selectedTab.columns[j]?.type.replace(/[^A-Z]/g,'');
+        const type = col === null ? 'NULL' : state.selectedTab.columns[j]?.type.replace(/[^A-Z]/g,'');
 
         //dates
         if(type === "DATE")
-            col = new Date(col).toLocaleString().replace(',','');
+            col = col ? new Date(col).toLocaleString().replace(',','') : '';
+
+        //clobs when not displaying clobs   
+        if(type === "CLOB")
+            col = col && Array.isArray(col) ? JSON.stringify(col) : col;
 
         return <td key={j} className={"results-viewer-cell-" + type}>{col}</td>;
     }
