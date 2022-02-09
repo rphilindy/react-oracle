@@ -113,3 +113,10 @@ div.results-viewer-rec-position {
 div.results-viewer-paging-bar > select > option {
     text-align: center;
 }
+
+div.results-view-no-records-placeholder {
+    background: linear-gradient(#222, #282828);
+    height: 100%;
+    border:none;
+
+}

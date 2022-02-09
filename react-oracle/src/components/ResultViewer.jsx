@@ -8,82 +8,12 @@ export default function ResultViewer (props) {
 
     const [state, setState] = useState({});
     
-    // const [selectedTabObj, setSelectedTabObj] = useState(null);
-    // const [recPos, setRecPos] = useState(null);
-    // const [recCt, setRecCt] = useState(null);
-    // const [pageSize, setPageSize] = useState(10);
-    // const [tableData, setTableData] = useState(null);
     const cursorData = useRef({}); 
     const pageSizes = [10,25,50,100,500,1000];
     const {getRows} = API();
 
     const {execResult, connectionId, handleError} = props;
     const showLayoutOnly = false; //to show just the layout for development
-
-    const show = async (args) => {
-
-        debugger;
-        let {selectedTab, startRow, rowsPerPage} = args;
-        
-        //if we're changing to a cursor tab for the first time, get its cursorData or create one
-        let cursordata;
-        let rows;
-
-        if(selectedTab.columns) {
-            cursordata = cursorData.current[selectedTab.id];    
-            if(!cursordata){
-                cursordata = {
-                    startRow: 0,
-                    rowsPerPage: 10,
-                };        
-            }
-        } 
-
-        let rowCount;    
-        
-        if(cursordata) {
-
-            if (startRow === undefined) startRow = cursordata.startRow;
-            rowsPerPage = rowsPerPage || cursordata.rowsPerPage;
-            rowCount = cursordata.rowCount;
-
-            //round the pages to pagesPerRow boundaries
-            startRow = Math.floor(startRow / rowsPerPage) * rowsPerPage;
-
-            //get data from API
-            const json = await getRows(connectionId, selectedTab.id, startRow, rowsPerPage);
-
-            //if error, display & quit
-            if(json.error) {
-                handleError({heading: 'Fetch Error', message: json.error.message});
-                return;
-            }
-
-            //if we've learned the rowcount
-            if (json.rowCount) {
-                rowCount = json.rowCount;
-                cursordata.rowCount = json.rowCount;
-            }
-
-            //api tells us the starRow (if we asked for last page [startRow = -1])
-            ({rows, startRow} = json);
-            cursordata.startRow = startRow;
-            cursordata.rowsPerPage = rowsPerPage;
-
-            //remember cursordata
-            cursorData.current[selectedTab.id] = cursordata;
-        }
-
-
-        //update state
-        setState({
-            selectedTab,
-            startRow,
-            rowsPerPage, 
-            rowCount,
-            rows    
-        });
-    }
 
     useEffect(()=>{
 
@@ -103,7 +33,7 @@ export default function ResultViewer (props) {
 
     //if no result, show nothing
     if(!showLayoutOnly && !execResult?.results?.length)
-        return <div>DARK VOID</div>;
+        return <div className="results-view-no-records-placeholder"></div>;
 
 
 
@@ -181,5 +111,70 @@ export default function ResultViewer (props) {
             <button disabled={!canNext} onClick={last}>&gt;&gt;</button>
         </React.Fragment>;
     }
+
+    async function show (args) {
+
+        let {selectedTab, startRow, rowsPerPage} = args;
+        
+        //if we're changing to a cursor tab for the first time, get its cursorData or create one
+        let cursordata;
+        let rows;
+
+        if(selectedTab.columns) {
+            cursordata = cursorData.current[selectedTab.id];    
+            if(!cursordata){
+                cursordata = {
+                    startRow: 0,
+                    rowsPerPage: 10,
+                };        
+            }
+        } 
+
+        let rowCount;    
+        
+        if(cursordata) {
+
+            if (startRow === undefined) startRow = cursordata.startRow;
+            rowsPerPage = rowsPerPage || cursordata.rowsPerPage;
+            rowCount = cursordata.rowCount;
+
+            //round the pages to pagesPerRow boundaries
+            startRow = Math.floor(startRow / rowsPerPage) * rowsPerPage;
+
+            //get data from API
+            const json = await getRows(connectionId, selectedTab.id, startRow, rowsPerPage);
+
+            //if error, display & quit
+            if(json.error) {
+                handleError({heading: 'Fetch Error', message: json.error.message});
+                return;
+            }
+
+            //if we've learned the rowcount
+            if (json.rowCount) {
+                rowCount = json.rowCount;
+                cursordata.rowCount = json.rowCount;
+            }
+
+            //api tells us the starRow (if we asked for last page [startRow = -1])
+            ({rows, startRow} = json);
+            cursordata.startRow = startRow;
+            cursordata.rowsPerPage = rowsPerPage;
+
+            //remember cursordata
+            cursorData.current[selectedTab.id] = cursordata;
+        }
+
+
+        //update state
+        setState({
+            selectedTab,
+            startRow,
+            rowsPerPage, 
+            rowCount,
+            rows    
+        });
+    }
+
 
 }
