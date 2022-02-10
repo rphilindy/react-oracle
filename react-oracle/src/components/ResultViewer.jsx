@@ -7,6 +7,7 @@ import API from '../libraries/api';
 export default function ResultViewer (props) {
 
     const [state, setState] = useState({});
+    const [clobOverlayState, setClobOverlayState] = useState(null);
     
     const cursorData = useRef({}); 
     const pageSizes = [10,25,50,100,500,1000];
@@ -30,7 +31,31 @@ export default function ResultViewer (props) {
         }
     },[execResult]);
 
+    //this gives the browser a chance to caluclate the overlay's client width / height, then displays it
+    useEffect(()=>{
 
+        setTimeout(()=>{
+            const d = document.querySelector('.results-viewer-clob-overlay');
+            if (!d) return;
+
+            d.style.display = 'inline-block';           
+
+            //move bottom to previous top
+            d.style.top = (parseInt(d.style.top) - d.clientHeight)+"px"; 
+
+
+            //move left if needed
+            if(d.offsetLeft + d.clientWidth > window.innerWidth){
+                d.style.left =  (parseInt(d.style.left) - (d.offsetLeft + d.clientWidth - window.innerWidth + 30))+"px"; 
+            }
+
+        },10)
+
+
+    }
+        ,[clobOverlayState]);
+    
+    
     //if no result, show nothing
     if(!showLayoutOnly && !execResult?.results?.length)
         return <div className="results-view-no-records-placeholder"></div>;
@@ -67,6 +92,16 @@ export default function ResultViewer (props) {
         <tr><td></td>{state.selectedTab?.columns?.map((c,i) => <td key={i}>{c.type}</td>)}</tr>
     </thead>;
 
+    const clobClick = (e) => {
+        
+        const d = document.querySelector('.results-viewer-clob-overlay');
+        if(d) d.style.display = 'none';           
+
+        setClobOverlayState(null);
+        setClobOverlayState({target: e.target, text: "clob text"});
+    }
+    
+
     const cell = (col,j) => {
         //className based on type
         const type = col === null ? 'NULL' : state.selectedTab.columns[j]?.type.replace(/[^A-Z]/g,'');
@@ -77,7 +112,7 @@ export default function ResultViewer (props) {
 
         //clobs when not displaying clobs   
         if(type === "CLOB")
-            col = col && Array.isArray(col) ? JSON.stringify(col) : col;
+            col = col && Array.isArray(col) ? <div style={{textDecoration: 'underline', cursor: 'pointer'}} onClick={clobClick}>{JSON.stringify(col)}</div> : col;
 
         return <td key={j} className={"results-viewer-cell-" + type}>{col}</td>;
     }
@@ -98,7 +133,34 @@ export default function ResultViewer (props) {
         <div className="results-viewer-paging-bar">
              {showLayoutOnly? 'Page Bar' : state.selectedTab?.columns ? pageBar() : ''}
         </div>
-    </div>;
+        {clobOverlay()}
+   </div>;
+
+
+    function clobOverlay (){
+    
+        if (clobOverlayState === null)
+            return "";
+
+        const {target, text} = clobOverlayState;
+        const rect = target.getBoundingClientRect();
+        const height = 30;
+        const width = 30;
+        let top = rect.top;
+        let left = rect.left;
+        // if(top + height > window.innerHeight) top=rect.top-height;
+        // if(left + width > window.innerWidth) left=rect.left-width;
+
+
+        return <div style={{top, left, display:'none'}} className="results-viewer-clob-overlay">
+        <div><button onClick={()=>setClobOverlayState(null)}>X</button></div>
+        <div><pre>{text}</pre></div>
+    </div>
+
+
+    }
+
+
 
 
     function pageBar(){
@@ -126,6 +188,8 @@ export default function ResultViewer (props) {
             <button disabled={!canNext} onClick={last}>&gt;&gt;</button>
         </React.Fragment>;
     }
+
+
 
     async function show (args) {
 

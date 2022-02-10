@@ -32,7 +32,7 @@ div.results-viewer-table-container {
     box-sizing: border-box;
     border: 1px solid #aaa;
     flex-grow: 1;
-    overflow: scroll;
+    overflow: auto;
     height: 100%;
 }
 
@@ -157,4 +157,44 @@ div.results-view-no-records-placeholder {
 .results-viewer-cell-NULL {
     outline: 2px dotted rgba(100,100,100,10);
     outline-offset: -3px;
+}
+
+.results-viewer-clob-overlay {
+    display:inline-block;
+    position:absolute;
+    min-height: 100px;
+    min-width: 300px;
+    max-width: 50vw;
+    background: #282c34;;
+    color:#eee;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0px 0px #aaa;
+}
+
+.results-viewer-clob-overlay button {
+    font-size: 10px;
+    height: 12px;
+    width: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    position:relative;
+    top: -14px;
+    left: calc(100% - 10px);
+    cursor: pointer !important; /*why not working?*/
+}
+
+.results-viewer-clob-overlay > div:first-child {
+    height: 0px;
+}
+.results-viewer-clob-overlay > div:last-child {
+    height: fit-content;
+    overflow: auto;
+    max-height: 20vw;
+    white-space: nowrap;
+    font-size: 80%;
 }
