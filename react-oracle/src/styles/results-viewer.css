@@ -158,6 +158,10 @@ div.results-view-no-records-placeholder {
     outline: 2px dotted rgba(100,100,100,10);
     outline-offset: -3px;
 }
+.results-viewer-cell-CLOB div {
+    text-align:center;
+    color:#444; 
+}
 
 .results-viewer-clob-overlay {
     display:inline-block;

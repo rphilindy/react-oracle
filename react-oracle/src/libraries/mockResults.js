@@ -9,7 +9,7 @@ export default function generateMockData() {
             const {rowCount, columns} = def;
             let rows = [];
             while (rows.length < rowCount) 
-                rows.push(columns.map((column, index) => column.value(rows.length + 1, Math.random())));
+                rows.push(columns.map((column, index) => column.value(rows.length + 1, Math.random(), index)));
 
             return JSON.parse(JSON.stringify({
                 sql: def.sql,

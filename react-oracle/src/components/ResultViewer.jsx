@@ -2,7 +2,7 @@
 
 import React, {useState, useRef, useEffect} from 'react';
 import '../styles/results-viewer.css';
-import API from '../libraries/api';
+import API from '../libraries/mock-api';
 
 export default function ResultViewer (props) {
 
@@ -11,7 +11,7 @@ export default function ResultViewer (props) {
     
     const cursorData = useRef({}); 
     const pageSizes = [10,25,50,100,500,1000];
-    const {getRows} = API();
+    const {getRows, getLob} = API();
 
     const {execResult, connectionId, handleError} = props;
     const showLayoutOnly = false; //to show just the layout for development
@@ -92,29 +92,39 @@ export default function ResultViewer (props) {
         <tr><td></td>{state.selectedTab?.columns?.map((c,i) => <td key={i}>{c.type}</td>)}</tr>
     </thead>;
 
-    const clobClick = (e) => {
+    const clobClick = async (e, cursorId, row, col) => {
+
         
         const d = document.querySelector('.results-viewer-clob-overlay');
-        if(d) d.style.display = 'none';           
+        if(d) d.style.display = 'none';   
+        const json = await getLob(connectionId, cursorId, row, col);
+        if(json.error) {
+            handleError("Error", json.error);
+            return;
+        }
 
+        
         setClobOverlayState(null);
-        setClobOverlayState({target: e.target, text: "clob text"});
+        setClobOverlayState({target: e.target, text: JSON.stringify(json.value)});
     }
     
 
-    const cell = (col,j) => {
+    const cell = (cellVal,cellIndex) => {
         //className based on type
-        const type = col === null ? 'NULL' : state.selectedTab.columns[j]?.type.replace(/[^A-Z]/g,'');
+        const type = cellVal === null ? 'NULL' : state.selectedTab.columns[cellIndex]?.type.replace(/[^A-Z]/g,'');
+        let rendercol = cellVal;
 
         //dates
         if(type === "DATE")
-            col = col ? new Date(col).toLocaleString().replace(',','') : '';
+            rendercol = cellVal ? new Date(cellVal).toLocaleString().replace(',','') : '';
 
-        //clobs when not displaying clobs   
-        if(type === "CLOB")
-            col = col && Array.isArray(col) ? <div style={{textDecoration: 'underline', cursor: 'pointer'}} onClick={clobClick}>{JSON.stringify(col)}</div> : col;
+        //clobs when not displaying clobs    - comes in as array of [row,col]
+        if(type === "CLOB") {
+            if(cellVal !== null && Array.isArray(cellVal)) 
+                rendercol = <div style={{textDecoration: 'underline', cursor: 'pointer'}} onClick={(e)=>clobClick(e, state.selectedTab.id, cellVal[0], cellVal[1])}>View</div>;
+        }
 
-        return <td key={j} className={"results-viewer-cell-" + type}>{col}</td>;
+        return <td key={cellIndex} className={"results-viewer-cell-" + type}>{rendercol}</td>;
     }
 
     const tbody = showLayoutOnly ? <tbody><tr><td>1</td><td>d1</td><td>d2</td></tr><tr><td>2</td><td>d3</td><td>d4</td></tr></tbody> : 
@@ -148,8 +158,7 @@ export default function ResultViewer (props) {
         const width = 30;
         let top = rect.top;
         let left = rect.left;
-        // if(top + height > window.innerHeight) top=rect.top-height;
-        // if(left + width > window.innerWidth) left=rect.left-width;
+        //this position will be adjusted post-rednering in useEffect with a setTimeout
 
 
         return <div style={{top, left, display:'none'}} className="results-viewer-clob-overlay">

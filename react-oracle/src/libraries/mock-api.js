@@ -90,9 +90,19 @@ export default function API() {
             json.rowCount = rows.length;
         json.startRow = start;
         json.span=25;
+
+        //clobs - return array with position instead of value
+        json.rows.map((r,ri) => json.rows[ri]=r.map((c,ci) => c?.clob ? [ri,ci] : c));
+
         return json;
     }
 
+    async function getLob(connectionId, cursorId, row, col) {
+        //const json = await callApiMethod('get-clob', {connectionId, cursorId, row, col});
+    console.log("X",cursorId,row, col, window.mockCurors[cursorId][row])        
+        let json = {xerror: {message: 'test error'}, value: window.mockCurors[cursorId][row][col].clob};
+        return json;
+    }
 
     function mockDefs() {
         return [
@@ -134,13 +144,13 @@ export default function API() {
                     {
                         name: 'COMMENT',
                         type: 'CLOB',
-                        value: (i,r) => i%2 ? [i,4] : null
+                        value: (i,r) => i%2 ? ({clob: r.toString()}) : null,
                     },
                 ]
             },
         ];
     }
 
-    return {connect, disconnect, execute, getRows};
+    return {connect, disconnect, execute, getRows, getLob};
 
 }

@@ -1,4 +1,4 @@
-import API from './api';
+import API from './mock-api';
 
 export default function LayoutFuncs() {
 
