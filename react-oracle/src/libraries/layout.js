@@ -24,6 +24,30 @@ export default function LayoutFuncs() {
 
     }
 
+    const getConnections = async (args) => {
+        const {setConnections, setModal} = args;
+        let json = await api.getConnections();
+        if(json.error) {
+            setModal({heading: 'Error', content: json.error});
+            return json;
+        }
+
+        setConnections(json.connections);
+        return json;
+    }
+
+    const getQueries = async (args) => {
+        const {setQueries, setModal} = args;
+        let json = await api.getQueries();
+        if(json.error) {
+            setModal({heading: 'Error', content: json.error});
+            return json;
+        }
+
+        setQueries(json.connections);
+        return json;
+    }
+
     //connect if connect selected and not connected 
     const connect = async (args) => {
         const {selectedConnection, connectionId, setConnectionStatus, setModal, setSelectedConnection, setResultText} = args;
@@ -72,8 +96,8 @@ export default function LayoutFuncs() {
         setExecResult(json);
     }
 
-    function handleQueryClick(querydef, querysetdef, args) {
-        const {selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult,setSelectedConnection} = args;
+    const handleQueryClick = (querydef, querysetdef, args) => {
+        const {editorMethods, setSelectedConnection} = args;
 
         editorMethods.current.setSql(querydef.sql);
 
@@ -86,5 +110,10 @@ export default function LayoutFuncs() {
 
     }
 
-    return {disconnect, connect, execute, handleQueryClick};
+    const handleSaveClick = async(args) => {
+        const {editorMethods, setModal} = args;
+        const sql = editorMethods.current.getSqlAndStart().sql;
+    }
+
+    return {disconnect, connect, execute, handleQueryClick, handleSaveClick, getConnections, getQueries };
 }
