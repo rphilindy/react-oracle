@@ -56,9 +56,9 @@ export default function LayoutFuncs() {
         const {connectionId, editorMethods, setModal, setResultBarText, setExecResult} = args;
         setExecResult(null);
         setResultBarText("Executing...");
-        const {sql, startPos} = editorMethods.current.getSqlAndStart();
+        const {sql} = editorMethods.current.getSqlAndStart();
         const json = await api.execute(connectionId, sql);
-        const {error, span, results} = json;
+        const {error, span} = json;
         if(error) {
             const {message, position} = error;
             editorMethods.current.highlightErrorAtPosition(position);

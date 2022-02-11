@@ -7,6 +7,7 @@ import Modal from './Modal';
 import ConnectionBar from './ConnectionBar';
 import SqlEditor from './SqlEditor';
 import ResultViewer from './ResultViewer';
+import Queries from './Queries';
 
 import LayoutFuncs from '../libraries/layout';
 
@@ -74,7 +75,7 @@ export default function Layout() {
 
     function workspacesContainer() {
         return <div className="layout-workspaces-container">
-            <div>{showLayoutLabelsOnly ? 'workspaces container' : ''}</div>
+            <div>{showLayoutLabelsOnly ? 'workspaces container' : <Queries/>}</div>
         </div>;
     }
 

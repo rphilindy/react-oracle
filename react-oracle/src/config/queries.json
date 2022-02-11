@@ -1,0 +1,23 @@
+{
+    "querySets": {
+        "Installations": {
+            "connection": "prod@mtl_warehouse_dev",
+            "queries" :{
+                "Orders": {
+                    "sql": "select * from inst_ord where inst_ord_id > 0"
+                },
+                "Order Vehicles": {
+                    "connection": "prod@mtl_warehouse_dev",
+                    "sql": "select * from inst_ord_veh\nwhere inst_ord_veh_id > 0 and inst_ord_id > 0"
+                }
+            }
+        },
+        "Test": {
+            "queries": {
+                "Hello": {
+                    "sql": "select * from dual"
+                }
+            }
+        }
+    }
+}
