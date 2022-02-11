@@ -114,13 +114,12 @@ export default function LayoutFuncs() {
     //todo: for now the querydef is hardcoded
     const handleSaveClick = async(args) => {
 
-        debugger;
         const {editorMethods, setModal,selectedConnection, setQueries} = args;
         const sql = editorMethods.current.getSqlAndStart().sql;
         const json=await api.saveQuery("Test", "test", {sql, connection: selectedConnection ? `${selectedConnection.user}@${selectedConnection.server}` : undefined});
         if(json.error)
             setModal({heading:'error', connect: json.error});
-        setQueries(json.queries);
+        setQueries({...json.queries}); //make sure state updates
     }
 
     return {disconnect, connect, execute, handleQueryClick, handleSaveClick, getConnections, getQueries };

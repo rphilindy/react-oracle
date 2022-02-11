@@ -46,7 +46,7 @@ export default function API() {
         if(!window.queries)
             window.queries = queriesConfig;
         await sleep(100);
-        const json = {xerror: 'error', queries: window.queries};
+        const json = {xerror: 'error', queries: {...window.queries}};
         return json;
     }
 
