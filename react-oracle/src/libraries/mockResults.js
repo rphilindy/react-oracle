@@ -29,10 +29,10 @@ export default function generateMockData() {
         while(sql.length) {
     
             const semi = sql.search(';');
-            let str = sql.search(/\'/);
+            let str = sql.search("'");
     
             //no more ;'s, take remainder
-            if(semi == -1){
+            if(semi === -1){
                 stmt = sql;
                 sql='';
                 if(stmt.search(/\s/) !== -1)
@@ -47,7 +47,7 @@ export default function generateMockData() {
                 stmt += sql.substring(0, str+1);
                 sql = sql.substring(str+1);
                 while(sql.length){
-                    str = sql.search(/\'/);
+                    str = sql.search("'");
     
                     //no closing '
                     if(str === -1)
@@ -87,19 +87,19 @@ export default function generateMockData() {
 
 }
 
-const defs = [
-    {
-        sql: "select * from inst_ord",
-        rowCount: 55,
-        columns: [
-            {
-                name: 'INST_ORD_ID',
-                type: 'NUMBER(38)',
-                value: i => i + 1000
-            }
-        ]
-    },
-];
+// const defs = [
+//     {
+//         sql: "select * from inst_ord",
+//         rowCount: 55,
+//         columns: [
+//             {
+//                 name: 'INST_ORD_ID',
+//                 type: 'NUMBER(38)',
+//                 value: i => i + 1000
+//             }
+//         ]
+//     },
+// ];
 
 //console.log(generateMockData().generate(defs));
 
