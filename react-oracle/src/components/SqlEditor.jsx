@@ -31,7 +31,7 @@ export default function SqlEditor(props) {
       };
   
     //send function pointers back to parent. apparently this needs to be done on every useEffect
-    useEffect(()=>handleGetMethods({getSqlAndStart, highlightErrorAtPosition, removeHighlightedError}));
+    useEffect(()=>handleGetMethods({getSqlAndStart, highlightErrorAtPosition, removeHighlightedError, setSql}));
 
     return <React.Fragment>
         <div className="sql-editor-container" onClick={()=>editor.current.focus()}>
@@ -46,6 +46,12 @@ export default function SqlEditor(props) {
         </div>
         <div className="sql-editor-statusbar">Line {statusBar.line}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column {statusBar.column}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{statusBar.error}</div>
     </React.Fragment>;
+
+
+      function setSql(sql) {
+          setEditorState(EditorState.createWithContent(ContentState.createFromText(sql)));
+      }
+
 
     //any state change to draft-js editor
     function handleEditorStateChange(newEditorState){

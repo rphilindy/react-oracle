@@ -1,4 +1,5 @@
 import API from './mock-api';
+import connectionConfig from "../config/connections.json";
 
 export default function LayoutFuncs() {
 
@@ -71,5 +72,19 @@ export default function LayoutFuncs() {
         setExecResult(json);
     }
 
-    return {disconnect, connect, execute};
+    function handleQueryClick(querydef, querysetdef, args) {
+        const {selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult,setSelectedConnection} = args;
+
+        editorMethods.current.setSql(querydef.sql);
+
+        const connection = querydef.connection || querysetdef.connection;
+
+        if(connection) {
+            const conn = connectionConfig.filter(c=>`${c.user}@${c.server}`.toUpperCase() === connection.toUpperCase())[0];
+            if(conn) setSelectedConnection(conn);
+        }
+
+    }
+
+    return {disconnect, connect, execute, handleQueryClick};
 }

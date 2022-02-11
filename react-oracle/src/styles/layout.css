@@ -40,7 +40,7 @@ div.layout-outermost-container > div {
 div.layout-workspaces-container {
     height: 100%;
     width: 10vw;
-    min: width 20px;0px;
+    min-width: 200px;
     box-sizing: border-box; /*keep the padding from creating a vertical scrollbar*/
     padding: 10px;
     outline: 1px solid #222;

@@ -28,8 +28,8 @@ export default function Layout() {
     const connectionId = useRef(null); //unique id for the connection from the API (so multiple windows have their pwn connection)
     
     //libraries
-    const {disconnect, connect, execute} = LayoutFuncs(); //access to functions
-    const args={selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult}; //for every all to LayoutFuncs (layout.js)
+    const {disconnect, connect, execute, handleQueryClick} = LayoutFuncs(); //access to functions
+    const args={selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult, setSelectedConnection}; //for every all to LayoutFuncs (layout.js)
 
     //show only the layout with labels
     const showLayoutLabelsOnly = false;
@@ -75,7 +75,7 @@ export default function Layout() {
 
     function workspacesContainer() {
         return <div className="layout-workspaces-container">
-            <div>{showLayoutLabelsOnly ? 'workspaces container' : <Queries/>}</div>
+            <div>{showLayoutLabelsOnly ? 'workspaces container' : <Queries handleQueryClick={(q, qset)=>handleQueryClick(q,qset,args)}/>}</div>
         </div>;
     }
 

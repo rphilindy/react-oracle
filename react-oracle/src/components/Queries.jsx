@@ -6,6 +6,7 @@ import queriesConfig from "../config/queries.json";
 export default function Queries(props) {
 
     const [expanded, setExpaned] = useState({});
+    const {handleQueryClick} = props;
 
     const toggle = (qsKey) => {
         let exp = {...expanded};
@@ -16,12 +17,15 @@ export default function Queries(props) {
     return <ul>
         {
             Object.entries(queriesConfig.querySets)
-                .map(([qsKey, qsVal]) => <li onClick={()=>toggle(qsKey)}  className={(expanded[qsKey]? 'expanded': '')} >
+                .map(([qsKey, qsVal], i) => <li key={i} onClick={()=>toggle(qsKey)}  className={(expanded[qsKey]? 'expanded': '')} >
                     {qsKey}
                     <ul style={{display: (expanded[qsKey]? '': 'none')}}>
                     {
                         Object.entries(qsVal.queries)
-                            .map(([qKey, qVal]) => <li onClick={(e)=>{e.stopPropagation();}}>
+                            .map(([qKey, qVal], i) => <li key={i} onClick={(e)=>{
+                                e.stopPropagation();
+                                handleQueryClick?.(qVal, qsVal);
+                                }}>
                                 {qKey}
                             </li>)
                     }

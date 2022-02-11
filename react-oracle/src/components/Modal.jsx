@@ -5,8 +5,10 @@ import '../styles/modal.css';
 
 export default function Modal(props) {
 
-    const {heading, content} = props;
+    let {heading, content} = props;
     const handleCloseClick = props.handleCloseClick || (()=>{});
+
+    if (!heading || heading === '') heading=<span>&nbsp;</span>;
 
     return <div className="modal-container">
     <div>
