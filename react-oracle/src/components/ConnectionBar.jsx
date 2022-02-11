@@ -2,7 +2,7 @@
 
 import React from 'react';
 import '../styles/connection-bar.css';
-import connectionConfig from "../config/connections.json";
+//import connectionConfig from "../config/connections.json";
 
 export default function ConnectionBar(props) {
 
@@ -10,7 +10,7 @@ export default function ConnectionBar(props) {
     const showLayoutLabelsOnly = false;
     const handleConnectionChange = props.handleConnectionChange || (() => {});
     const {selectedConnection} = props;
-    const connectionStatus = props.connectionStatus;
+    const {connections, connectionStatus} = props;
     const statusText= `${connectionStatus?.toUpperCase()}${connectionStatus?.search(/ing$/) !== -1 ? '...' : ''}`;
     const statusStyle = `connection-bar-status-ind connection-bar-status-ind-${connectionStatus?.replace(/ /g,'-')}`;
 
@@ -25,7 +25,7 @@ export default function ConnectionBar(props) {
     function connectionSelect() {
         return <select id="connectionSelect" className="connection-bar-select" onChange={bubbleUpConnectionChange} value={selectedConnection === null? "" : JSON.stringify(selectedConnection)}>
             <option value="">(Disconnect)</option>
-            {connectionConfig.map((cfg,idx) => <option key={idx} value={JSON.stringify(cfg)}>{`${cfg.user}@${cfg.server}`}</option>)}
+            {connections?.map((cfg,idx) => <option key={idx} value={JSON.stringify(cfg)}>{`${cfg.user}@${cfg.server}`}</option>)}
         </select>;
     }
 

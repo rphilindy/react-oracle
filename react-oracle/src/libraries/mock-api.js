@@ -1,4 +1,6 @@
 import generateMockData from './mockResults';
+import connectionConfig from "../config/connections.json";
+import queriesConfig from "../config/queries.json";
 
 export default function API() {
 
@@ -6,32 +8,44 @@ export default function API() {
     const mockData = generate(mockDefs());
     //let mockCurors = {};
     
-    const baseURL = "http://localhost:3001/";
+    //const baseURL = "http://localhost:3001/";
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    async function callApiMethod (endpoint, json) {
+    // async function callApiMethod (endpoint, json) {
 
-        try {
+    //     try {
 
-            const response = await fetch(`${baseURL}${endpoint}`,{
-                method: json ? 'POST' : 'GET', 
-                body: json ? JSON.stringify(json) : null,
-                headers: json ? { 'Content-Type': 'application/json' } : {}
-            });
-            //non OK statuses - return status as error
-            if(response.status >= 300) {
-                throw new Error(`${response.status} ${response.statusText}`);
-            }
+    //         const response = await fetch(`${baseURL}${endpoint}`,{
+    //             method: json ? 'POST' : 'GET', 
+    //             body: json ? JSON.stringify(json) : null,
+    //             headers: json ? { 'Content-Type': 'application/json' } : {}
+    //         });
+    //         //non OK statuses - return status as error
+    //         if(response.status >= 300) {
+    //             throw new Error(`${response.status} ${response.statusText}`);
+    //         }
 
-            const data = await response.json();
-            return data;
-        }
+    //         const data = await response.json();
+    //         return data;
+    //     }
 
-        //return unexpected errors as {error: "..."}
-        catch(e) {
-            return {error: `API unavailable: ${e.message || e.toString()}`}
-        }
+    //     //return unexpected errors as {error: "..."}
+    //     catch(e) {
+    //         return {error: `API unavailable: ${e.message || e.toString()}`}
+    //     }
+    // }
+
+    async function getConnections(){
+        await sleep(100);
+        const json = {xerror: 'error', connections: connectionConfig};
+        return json;
+    }
+
+    async function getQueries(){
+        await sleep(100);
+        const json = {xerror: 'error', connections: queriesConfig};
+        return json;
     }
 
     async function connect(connection) {
@@ -84,7 +98,7 @@ export default function API() {
         let json ={};
         let rows = window.mockCurors[cursorId];
         let start = startRow;
-        if(start == -1) start=Math.floor(rows.length/numRows) * numRows;
+        if(start === -1) start=Math.floor(rows.length/numRows) * numRows;
         json.rows = rows.slice(start, start + numRows);
         if(startRow === -1 || start + numRows > rows.length)
             json.rowCount = rows.length;
@@ -99,8 +113,7 @@ export default function API() {
 
     async function getLob(connectionId, cursorId, row, col) {
         //const json = await callApiMethod('get-clob', {connectionId, cursorId, row, col});
-    console.log("X",cursorId,row, col, window.mockCurors[cursorId][row])        
-        let json = {xerror: {message: 'test error'}, value: window.mockCurors[cursorId][row][col].clob};
+        let json = {error: {message: 'test error'}, value: window.mockCurors[cursorId][row][col].clob};
         return json;
     }
 
@@ -151,6 +164,6 @@ export default function API() {
         ];
     }
 
-    return {connect, disconnect, execute, getRows, getLob};
+    return {connect, disconnect, execute, getRows, getLob, getConnections, getQueries};
 
 }
