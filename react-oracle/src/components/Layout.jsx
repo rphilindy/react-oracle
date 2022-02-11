@@ -31,7 +31,7 @@ export default function Layout() {
     
     //libraries
     const {disconnect, connect, execute, handleQueryClick, handleSaveClick, getConnections, getQueries} = LayoutFuncs(); //access to functions
-    const args={selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult, setSelectedConnection, setConnections, setQueries}; //for every all to LayoutFuncs (layout.js)
+    const args={selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult, setSelectedConnection, setConnections, setQueries, queries}; //for every all to LayoutFuncs (layout.js)
 
     //show only the layout with labels
     const showLayoutLabelsOnly = false;

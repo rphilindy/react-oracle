@@ -4,14 +4,16 @@ import '../styles/queries.css';
 
 export default function Queries(props) {
 
-    const [expanded, setExpaned] = useState({});
+    const [expanded, setExpanded] = useState({});
     const {handleQueryClick,queries} = props;
 
     const toggle = (qsKey) => {
         let exp = {...expanded};
         exp[qsKey] = !exp[qsKey];
-        setExpaned(exp);
+        setExpanded(exp);
     }
+
+    console.log(queries);
 
     if(!queries?.querySets) return '';
 

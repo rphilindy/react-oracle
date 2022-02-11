@@ -44,9 +44,10 @@ export default function LayoutFuncs() {
             return json;
         }
 
-        setQueries(json.connections);
+        setQueries(json.queries);
         return json;
     }
+
 
     //connect if connect selected and not connected 
     const connect = async (args) => {
@@ -110,9 +111,16 @@ export default function LayoutFuncs() {
 
     }
 
+    //todo: for now the querydef is hardcoded
     const handleSaveClick = async(args) => {
-        const {editorMethods, setModal} = args;
+
+        debugger;
+        const {editorMethods, setModal,selectedConnection, setQueries} = args;
         const sql = editorMethods.current.getSqlAndStart().sql;
+        const json=await api.saveQuery("Test", "test", {sql, connection: selectedConnection ? `${selectedConnection.user}@${selectedConnection.server}` : undefined});
+        if(json.error)
+            setModal({heading:'error', connect: json.error});
+        setQueries(json.queries);
     }
 
     return {disconnect, connect, execute, handleQueryClick, handleSaveClick, getConnections, getQueries };

@@ -43,9 +43,23 @@ export default function API() {
     }
 
     async function getQueries(){
+        if(!window.queries)
+            window.queries = queriesConfig;
         await sleep(100);
-        const json = {xerror: 'error', connections: queriesConfig};
+        const json = {xerror: 'error', queries: window.queries};
         return json;
+    }
+
+    async function saveQuery(querySetKey, queryKey, querydef){
+        let json = await getQueries();
+        if(json.error)
+            return json;
+        let queries = json.queries;
+        if(!queries.querySets[querySetKey])
+            queries.querySets[querySetKey] = {queries: {}};
+        queries.querySets[querySetKey].queries[queryKey] = querydef;
+        window.queries = queries;
+        return getQueries();
     }
 
     async function connect(connection) {
@@ -164,6 +178,6 @@ export default function API() {
         ];
     }
 
-    return {connect, disconnect, execute, getRows, getLob, getConnections, getQueries};
+    return {connect, disconnect, execute, getRows, getLob, getConnections, getQueries, saveQuery};
 
 }
