@@ -117,12 +117,19 @@ export default function LayoutFuncs() {
 
         const {editorMethods, setModal, selectedConnection, setQueries, queries} = args;
 
-        const content = <SaveModalContent queries={queries}/>
+        let vals={qKey:"", qsKey: ""};
 
-        const buttons = [
-            {text: 'OK', onClick: ()=>alert()},
+        let buttons = [
+            {text: 'OK', onClick: ()=>alert(JSON.stringify(vals)), disabled: true},
             {isClose: true, text: 'Cancel'}
         ];
+
+        const onChange=(qsKey, qKey)=> {
+            vals = {qsKey, qKey};
+            buttons[0].disabled = qsKey.trim() === '' || qKey.trim() === '';
+            setModal({heading: 'Save', content, buttons});
+        }
+        const content = <SaveModalContent queries={queries} handleChange={onChange}/>
 
         setModal({heading: 'Save', content, buttons});
 

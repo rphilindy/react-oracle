@@ -26,7 +26,8 @@ export default function Modal(props) {
               if(b.onClick) b.onClick();
               if(b.isClose) handleCloseClick();
             };
-            return <button key={i} className="modal-button" onClick={onClick} autoFocus={b.isClose}>{b.text}</button>
+            const disabled=b.disabled?b.disabled:false;
+            return <button key={i} className="modal-button" onClick={onClick} autoFocus={b.isClose} disabled={disabled}>{b.text}</button>
           })}
         </center>
       </div>
