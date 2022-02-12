@@ -83,7 +83,7 @@ export default function Layout() {
     
     function modalContainer(){
         if(!modal) return '';
-        return <Modal heading={modal.heading} content={modal.content} handleCloseClick={()=>setModal(null)}/>;
+        return <Modal heading={modal.heading} content={modal.content} buttons={modal.buttons} handleCloseClick={()=>setModal(null)}/>;
     }
 
     function workspacesContainer() {

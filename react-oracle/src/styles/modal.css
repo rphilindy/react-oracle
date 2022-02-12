@@ -15,12 +15,10 @@
     margin:auto;
     border: 1px solid white;
     border-radius: 5px;
-    animation-name: animatetop;
-    animation-duration: 0.4s;
   }
   .modal-header {
     height:fit-content;
-    padding: 10px;
+    padding: 5px;
     font-size: 125%;
     text-align:center;
     background: #aaa;
@@ -30,34 +28,47 @@
     outline-offset: -1px;
   }
 
-  .modal-content {
+  .modal-content-button-container {
     position: relative; 
     padding: 10px; 
     margin: auto; 
     text-align:center;
-    background: #666;
-    outline: 1px solid #222;
-    outline-offset: -1px;
+    background: linear-gradient(#333,#222);
   }
 
-  .modal-close-btn {
-    float: right; 
-    position: relative;
-    top: -7px;
-    color: lightgray; 
-    font-size: 125%;
-    font-weight: bold;
-    color: black;
+  .modal-content {
+    position: relative; 
+    padding: 15px; 
+    margin: auto; 
+    text-align:center;
+    vertical-align: middle;
+    margin-bottom: 12px;
+  }
+
+
+.modal-close-btn {
+  float: right; 
+  position: relative;
+  top: -6px;
+  color: lightgray; 
+  font-size: 125%;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+}
+
+.modal-close-btn:hover {
+  color: #444;
+}
+
+.modal-button {
+    font-size: 110%;
+    padding: 5px;
+    min-width: 75px;
     cursor: pointer;
-  }
+}
 
-  .modal-close-btn:hover {
-    color: #444;
-  }
+.modal-button:hover {
+  background: white;
+}
 
-  .modal-button {
-      font-size: 125%;
-      padding: 5px;
-      min-width: 75px;
-  }
-  

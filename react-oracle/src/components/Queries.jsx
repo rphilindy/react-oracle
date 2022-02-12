@@ -13,7 +13,6 @@ export default function Queries(props) {
         setExpanded(exp);
     }
 
-    console.log(queries);
 
     if(!queries?.querySets) return '';
 

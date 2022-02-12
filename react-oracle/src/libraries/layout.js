@@ -1,5 +1,6 @@
 import API from './mock-api';
 import connectionConfig from "../config/connections.json";
+import SaveModalContent from '../components/SaveModalContent';
 
 export default function LayoutFuncs() {
 
@@ -114,12 +115,23 @@ export default function LayoutFuncs() {
     //todo: for now the querydef is hardcoded
     const handleSaveClick = async(args) => {
 
-        const {editorMethods, setModal,selectedConnection, setQueries} = args;
-        const sql = editorMethods.current.getSqlAndStart().sql;
-        const json=await api.saveQuery("Test", "test", {sql, connection: selectedConnection ? `${selectedConnection.user}@${selectedConnection.server}` : undefined});
-        if(json.error)
-            setModal({heading:'error', connect: json.error});
-        setQueries({...json.queries}); //make sure state updates
+        const {editorMethods, setModal, selectedConnection, setQueries, queries} = args;
+
+        const content = <SaveModalContent queries={queries}/>
+
+        const buttons = [
+            {text: 'OK', onClick: ()=>alert()},
+            {isClose: true, text: 'Cancel'}
+        ];
+
+        setModal({heading: 'Save', content, buttons});
+
+
+        // const sql = editorMethods.current.getSqlAndStart().sql;
+        // const json=await api.saveQuery("Test", "test", {sql, connection: selectedConnection ? `${selectedConnection.user}@${selectedConnection.server}` : undefined});
+        // if(json.error)
+        //     setModal({heading:'error', connect: json.error});
+        // setQueries({...json.queries}); //make sure state updates
     }
 
     return {disconnect, connect, execute, handleQueryClick, handleSaveClick, getConnections, getQueries };
