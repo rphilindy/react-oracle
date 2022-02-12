@@ -5,6 +5,7 @@ import '../styles/queries.css';
 export default function Queries(props) {
 
     const [expanded, setExpanded] = useState({});
+    const [selQuery, setSelQuery] = useState(null);
     const {handleQueryClick,queries} = props;
 
     const toggle = (qsKey) => {
@@ -24,9 +25,10 @@ export default function Queries(props) {
                     <ul style={{display: (expanded[qsKey]? '': 'none')}}>
                     {
                         Object.entries(qsVal.queries)
-                            .map(([qKey, qVal], i) => <li key={i} onClick={(e)=>{
+                            .map(([qKey, qVal], i) => <li key={i} className={qVal===selQuery? 'selected' : ''} onClick={(e)=>{
+                                setSelQuery(qVal);
                                 e.stopPropagation();
-                                handleQueryClick?.(qVal, qsVal);
+                                handleQueryClick?.(qVal, qsVal, qKey, qsKey);
                                 }}>
                                 {qKey}
                             </li>)

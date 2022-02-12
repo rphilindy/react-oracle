@@ -23,6 +23,7 @@ export default function Layout() {
     const[modal, setModal] = useState(null); //{heading: 'Error', content: 'Message'} to show dialog
     const[resultBarText, setResultBarText] = useState("Ready");
     const[execResult, setExecResult] = useState(null); //json returned from api execute
+    const selectedQuery = useRef({});
     
 
     //refs
@@ -31,7 +32,7 @@ export default function Layout() {
     
     //libraries
     const {disconnect, connect, execute, handleQueryClick, handleSaveClick, getConnections, getQueries} = LayoutFuncs(); //access to functions
-    const args={selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult, setSelectedConnection, setConnections, setQueries, queries}; //for every all to LayoutFuncs (layout.js)
+    const args={selectedConnection, setConnectionStatus, connectionId, editorMethods, setModal, setResultBarText, setExecResult, setSelectedConnection, setConnections, setQueries, queries, selectedQuery}; //for every all to LayoutFuncs (layout.js)
 
     //show only the layout with labels
     const showLayoutLabelsOnly = false;
@@ -88,7 +89,7 @@ export default function Layout() {
 
     function workspacesContainer() {
         return <div className="layout-workspaces-container">
-            <div>{showLayoutLabelsOnly ? 'workspaces container' : <Queries queries={queries} handleQueryClick={(q, qset)=>handleQueryClick(q,qset,args)}/>}</div>
+            <div>{showLayoutLabelsOnly ? 'workspaces container' : <Queries queries={queries} handleQueryClick={(q,qset,qkey,qskey)=>handleQueryClick(q,qset,qkey,qskey,args)}/>}</div>
         </div>;
     }
 

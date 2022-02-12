@@ -98,12 +98,13 @@ export default function LayoutFuncs() {
         setExecResult(json);
     }
 
-    const handleQueryClick = (querydef, querysetdef, args) => {
-        const {editorMethods, setSelectedConnection} = args;
+    const handleQueryClick = (queryDef, querySetDef, qKey, qsKey, args) => {
+        const {editorMethods, setSelectedConnection, selectedQuery} = args;
 
-        editorMethods.current.setSql(querydef.sql);
+        editorMethods.current.setSql(queryDef.sql);
+        selectedQuery.current = {qsKey, qKey};
 
-        const connection = querydef.connection || querysetdef.connection;
+        const connection = queryDef.connection || querySetDef.connection;
 
         if(connection) {
             const conn = connectionConfig.filter(c=>`${c.user}@${c.server}`.toUpperCase() === connection.toUpperCase())[0];
@@ -127,7 +128,7 @@ export default function LayoutFuncs() {
     //todo: for now the querydef is hardcoded
     const handleSaveClick = async(args) => {
 
-        const {setModal, queries} = args;
+        const {setModal, queries, selectedQuery} = args;
 
         let vals={qKey:"", qsKey: ""};
 
@@ -141,7 +142,7 @@ export default function LayoutFuncs() {
             buttons[0].disabled = qsKey.trim() === '' || qKey.trim() === '';
             setModal({heading: 'Save', content, buttons});
         }
-        const content = <SaveModalContent queries={queries} handleChange={onChange}/>
+        const content = <SaveModalContent queries={queries} selectedQuery={selectedQuery} handleChange={onChange}/>
 
         setModal({heading: 'Save', content, buttons});
 
