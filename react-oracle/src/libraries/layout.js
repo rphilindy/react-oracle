@@ -133,7 +133,7 @@ export default function LayoutFuncs() {
         let vals={qKey:"", qsKey: ""};
 
         let buttons = [
-            {text: 'OK', onClick: ()=>save(vals, args), disabled: true},
+            {text: 'OK', onClick: ()=>save(vals, args), disabled: true, isAutoFocus: true},
             {isClose: true, text: 'Cancel'}
         ];
 

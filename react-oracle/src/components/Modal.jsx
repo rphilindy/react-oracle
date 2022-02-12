@@ -1,16 +1,33 @@
 //alert modal for this app
 
-import React from 'react';
+import React, {useCallback, useEffect} from 'react';
 import '../styles/modal.css';
 
 export default function Modal(props) {
 
+
+  
     let {heading, content, buttons} = props;
     const handleCloseClick = props.handleCloseClick || (()=>{});
     
 
     if (!heading || heading === '') heading=<span>&nbsp;</span>;
-    if(!buttons) buttons=[{isClose: true, text: 'OK'}];
+    if(!buttons) buttons=[{isClose: true, text: 'OK', isAutoFocus: true}];
+
+    const escFunction = useCallback((event) => {
+      if (event.key === "Escape") {
+        handleCloseClick();
+      }
+    }, []);
+
+    useEffect(() => {
+      document.addEventListener("keydown", escFunction, false);
+  
+      return () => {
+        document.removeEventListener("keydown", escFunction, false);
+      };
+    }, []);
+
 
     return <div className="modal-container">
     <div>
@@ -27,7 +44,7 @@ export default function Modal(props) {
               if(b.isClose) handleCloseClick();
             };
             const disabled=b.disabled?b.disabled:false;
-            return <button key={i} className="modal-button" onClick={onClick} autoFocus={b.isClose} disabled={disabled}>{b.text}</button>
+            return <button key={i} className="modal-button" onClick={onClick} autoFocus={b.isAutoFocus} disabled={disabled}>{b.text}</button>
           })}
         </center>
       </div>
