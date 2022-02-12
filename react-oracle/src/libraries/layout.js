@@ -112,15 +112,27 @@ export default function LayoutFuncs() {
 
     }
 
+    const save = async (vals,args) => {
+
+        const {qKey, qsKey} = vals;
+        const {setModal, setQueries, editorMethods, selectedConnection} = args;
+        setModal(null);
+        const sql = editorMethods.current.getSqlAndStart().sql;
+        const json=await api.saveQuery(qsKey, qKey, {sql, connection: selectedConnection ? `${selectedConnection.user}@${selectedConnection.server}` : undefined});
+        if(json.error)
+            setModal({heading:'error', connect: json.error});
+        setQueries({...json.queries}); //make sure state updates
+    }
+
     //todo: for now the querydef is hardcoded
     const handleSaveClick = async(args) => {
 
-        const {editorMethods, setModal, selectedConnection, setQueries, queries} = args;
+        const {setModal, queries} = args;
 
         let vals={qKey:"", qsKey: ""};
 
         let buttons = [
-            {text: 'OK', onClick: ()=>alert(JSON.stringify(vals)), disabled: true},
+            {text: 'OK', onClick: ()=>save(vals, args), disabled: true},
             {isClose: true, text: 'Cancel'}
         ];
 
@@ -134,11 +146,6 @@ export default function LayoutFuncs() {
         setModal({heading: 'Save', content, buttons});
 
 
-        // const sql = editorMethods.current.getSqlAndStart().sql;
-        // const json=await api.saveQuery("Test", "test", {sql, connection: selectedConnection ? `${selectedConnection.user}@${selectedConnection.server}` : undefined});
-        // if(json.error)
-        //     setModal({heading:'error', connect: json.error});
-        // setQueries({...json.queries}); //make sure state updates
     }
 
     return {disconnect, connect, execute, handleQueryClick, handleSaveClick, getConnections, getQueries };
