@@ -80,11 +80,26 @@ export default function LayoutFuncs() {
 
     const execute = async (args) => {
 
-        const {connectionId, editorMethods, setModal, setResultBarText, setExecResult} = args;
+        const {connectionId, editorMethods, paramsEditorMethods, setModal, setResultBarText, setExecResult} = args;
         setExecResult(null);
         setResultBarText("Executing...");
+        
         const {sql} = editorMethods.current.getSqlAndStart();
-        const json = await api.execute(connectionId, sql);
+        const paramsJSON = paramsEditorMethods.current.getSqlAndStart().sql;
+        
+        let params;
+        try{
+            params = JSON.parse(paramsJSON);
+        }
+        catch(e){
+            const position = e.message?.split(/ at position /)[1];
+            if(position !== undefined)
+                paramsEditorMethods.current.highlightErrorAtPosition(position);
+            setModal({heading: "Params Error", content: e.message});
+            return;
+        }
+        
+        const json = await api.execute(connectionId, sql, params);
         const {error, span} = json;
         if(error) {
             const {message, position} = error;

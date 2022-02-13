@@ -76,7 +76,7 @@ export default function API() {
         return json;
     }
 
-    async function execute(connectionId, sql) {
+    async function execute(connectionId, sql, params) {
         //const json = await callApiMethod('execute', {connectionId, sql});
 
         const stmts = parse(sql);
