@@ -72,7 +72,7 @@ div.layout-right-of-workspaces-container > div {
     flex-direction: column;
     height: 100%;
     box-sizing: border-box; 
-    outline: 1px solid #444;
+    outline: none;
     outline-offset: 0px;
 }
 
@@ -86,12 +86,39 @@ div.layout-connection-container, div.layout-commands-container {
     overflow: hidden;
 }
 
-
-div.layout-sql-editor-container {
-    margin-top: 10px;
+div.layout-sql-and-params-editors-container {
     height: 42vh;  /*scale the sql editor size here*/
+    display: flex;
+    margin-top: 10px;
     outline: none;
     outline-offset: -1px;
+}
+
+div.layout-sql-editor-container {
+    outline: none;
+    outline-offset: -1px;
+    width: 75%;
+
+}
+
+div.layout-params-editor-container {
+    display:flex;
+    flex-direction: column;
+    outline: none;
+    outline-offset: -1px;
+    width: 25%;
+    margin-left:10px;
+}
+
+div.layout-params-editor-container > div:first-child {
+
+    outline: none;
+    outline-offset: -1px;
+    padding-bottom: 10px;
+}
+
+div.layout-params-editor-container > div:last-child {
+    flex-grow: 1;
 }
 
 div.layout-commands-container {

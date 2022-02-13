@@ -8,6 +8,7 @@ import '../styles/sql-editor.css';
 export default function SqlEditor(props) {
 
     const handleGetMethods = props.handleGetMethods || (()=>{});
+    const showSelectionOnBlur = props.showSelectionOnBlur;
 
 
     const [editorState, setEditorState] = useState(EditorState.createWithContent(ContentState.createFromText("select * from dual"))); 
@@ -71,7 +72,7 @@ export default function SqlEditor(props) {
         //all roads must lead here
         setEditorState(newEditorState);
 
-        if(!selectionState.hasFocus)
+        if(showSelectionOnBlur && !selectionState.hasFocus)
             showSelectedOnBlur();
         else
             removeHighlightedError(); //todo: this removes error selection on focus. can we do it when key pressed?

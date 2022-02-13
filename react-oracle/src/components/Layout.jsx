@@ -28,6 +28,7 @@ export default function Layout() {
 
     //refs
     const editorMethods = useRef(null); //functions in sqlEditor
+    const paramsEditorMethods = useRef(null); //functions in params sqlEditor
     const connectionId = useRef(null); //unique id for the connection from the API (so multiple windows have their pwn connection)
     
     //libraries
@@ -97,12 +98,22 @@ export default function Layout() {
         return <div className="layout-right-of-workspaces-container">
             <div>
                 {connectionContainer()}
-                {sqlEditorContainer()}
+                <div className="layout-sql-and-params-editors-container">
+                    {sqlEditorContainer()}
+                    {paramsEditorContainter()}
+                </div>
                 {commandsContainer()}
                 {resultsContainer()}
 
             </div>    
         </div>;
+    }
+
+    function paramsEditorContainter(){
+        return <div className="layout-params-editor-container">
+            <div>Parameters</div>
+            <div><SqlEditor  handleGetMethods={(methods) => paramsEditorMethods.current = methods}/></div>
+        </div>
     }
 
     function connectionContainer() {
@@ -113,7 +124,7 @@ export default function Layout() {
 
     function sqlEditorContainer() {
         return <div className="layout-sql-editor-container">
-            {showLayoutLabelsOnly ? 'sql editor container' : <SqlEditor handleGetMethods={(methods) => editorMethods.current = methods}/>}
+            {showLayoutLabelsOnly ? 'sql editor container' : <SqlEditor showSelectionOnBlur={true} handleGetMethods={(methods) => editorMethods.current = methods}/>}
         </div>;
     }
 
