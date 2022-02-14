@@ -1,4 +1,5 @@
-import API from './mock-api';
+//import API from './mock-api';
+import API from './api';
 import connectionConfig from "../config/connections.json";
 import SaveModalContent from '../components/SaveModalContent';
 
@@ -8,15 +9,15 @@ export default function LayoutFuncs() {
 
     const disconnect = async (args) => {
 
-        const {connectionId, setConnectionStatus, setModal, setResultText} = args;
+        const {connectionId, setConnectionStatus, setModal, setResultBarText} = args;
         /////disconnect if connected
         if(connectionId.current) {
             setConnectionStatus('disconnecting');
-            const json=await api.disconnect(connectionId);
+            const json=await api.disconnect(connectionId.current);
             if(json.error) {
                 setConnectionStatus('connected');
                 setModal({heading: 'Disconnect Error', content: json.error.message});
-                setResultText(json.error.message);
+                setResultBarText(json.error.message);
                 return;
             }
         }
@@ -52,7 +53,7 @@ export default function LayoutFuncs() {
 
     //connect if connect selected and not connected 
     const connect = async (args) => {
-        const {selectedConnection, connectionId, setConnectionStatus, setModal, setSelectedConnection, setResultText} = args;
+        const {selectedConnection, connectionId, setConnectionStatus, setModal, setSelectedConnection, setResultBarText} = args;
         if(selectedConnection && connectionId.current === null) {
             //show connecting status and connect
             setConnectionStatus('connecting');
@@ -62,7 +63,7 @@ export default function LayoutFuncs() {
             if(json.error) {
                 setConnectionStatus('disconnected');
                 setModal({heading: 'Connect Error', content: json.error.message});
-                setResultText(json.error.message);
+                setResultBarText(json.error.message);
                 setSelectedConnection(null);
                 
             }
