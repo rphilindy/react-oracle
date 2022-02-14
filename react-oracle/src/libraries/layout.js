@@ -89,7 +89,7 @@ export default function LayoutFuncs() {
         
         let params;
         try{
-            params = JSON.parse(paramsJSON);
+            params = paramsJSON.trim() === "" ? null : JSON.parse(paramsJSON);
         }
         catch(e){
             const position = e.message?.split(/ at position /)[1];
