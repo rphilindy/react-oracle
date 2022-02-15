@@ -4,9 +4,6 @@ import queriesConfig from "../config/queries.json";
 
 export default function API() {
 
-    const {generate, parse} = generateMockData();
-    const mockData = generate(mockDefs());
-    //let mockCurors = {};
     
     const baseURL = "http://localhost:3001/";
 
@@ -78,11 +75,8 @@ export default function API() {
     }
 
     async function getRows(connectionId, cursorId, startRow, numRows) {
-        console.log("yo");
-        const json = await callApiMethod('get-rows', {connectionId, cursorId, startRow, numRows});
-        console.log(json);
-        
 
+        const json = await callApiMethod('get-rows', {connectionId, cursorId, startRow, numRows});
         return json;
     }
 
@@ -92,52 +86,6 @@ export default function API() {
         return json;
     }
 
-    function mockDefs() {
-        return [
-            {
-                sql: "select rand1 from dual",
-                rowCount: 1,
-                columns: [
-                    {
-                        name: 'RAND1',
-                        type: 'NUMBER(38)',
-                        value: (i,r) => r,
-                    }
-                ]
-            },
-            {
-                sql: "select * from dual",
-                rowCount: 55,
-                columns: [
-                    {
-                        name: 'INST_ORD_ID',
-                        type: 'NUMBER(38)',
-                        value: i => i + 1000
-                    },
-                    {
-                        name: 'INST_ORD_NO',
-                        type: 'VARCHAR2(50)',
-                        value: i => 'INST' +(i + 1000)
-                    },
-                    {
-                        name: 'UPDATE_DATE',
-                        type: 'DATE',
-                        value: (i,r) => new Date(-Math.floor(r*1000000) + new Date().getTime())
-                    },
-                    {
-                        name: 'UPDATE_DATE2',
-                        type: 'DATE',
-                        value: (i,r) => i%2 ? new Date() : null
-                    },
-                    {
-                        name: 'COMMENT',
-                        type: 'CLOB',
-                        value: (i,r) => i%2 ? ({clob: r.toString()}) : null,
-                    },
-                ]
-            },
-        ];
-    }
 
     return {connect, disconnect, execute, getRows, getLob, getConnections, getQueries, saveQuery};
 
