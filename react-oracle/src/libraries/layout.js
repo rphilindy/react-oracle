@@ -100,8 +100,8 @@ export default function LayoutFuncs() {
             return;
         }
         
-        const json = await api.execute(connectionId, sql, params);
-        const {error, span} = json;
+        const json = await api.execute(connectionId.current, sql, params);
+        const {error, timeSpan} = json;
         if(error) {
             const {message, position} = error;
             editorMethods.current.highlightErrorAtPosition(position);
@@ -109,7 +109,7 @@ export default function LayoutFuncs() {
             setResultBarText(message);
         }
         else {
-            setResultBarText(`Executed in ${timeSpanText(span)}`);
+            setResultBarText(`Executed in ${timeSpanText(timeSpan)}`);
         }
         setExecResult(json);
     }

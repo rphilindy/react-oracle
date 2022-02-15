@@ -86,7 +86,7 @@ export default function ResultViewer (props) {
 
     const thead = showLayoutOnly ? <thead><tr><td></td><td>col1</td><td>col2</td></tr><tr><td></td><td>number</td><td>varchar(20)</td></tr></thead> :
     <thead>
-        {state.selectedTab?.affected && <tr><td>{state.selectedTab.affected} record(s) affected</td></tr>}
+        {state.selectedTab?.affected !== undefined && <tr><td>{state.selectedTab.affected} record(s) affected</td></tr>}
         {state.selectedTab?.error && <tr><td>Error: {state.selectedTab.error.message}</td></tr>}
         <tr><td></td>{state.selectedTab?.columns?.map((c,i) => <td key={i}>{c.name}</td>)}</tr>
         <tr><td></td>{state.selectedTab?.columns?.map((c,i) => <td key={i}>{c.type}</td>)}</tr>

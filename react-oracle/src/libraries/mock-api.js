@@ -65,14 +65,14 @@ export default function API() {
     async function connect(connection) {
         //const json = await callApiMethod('connect', {connection});
         await sleep(1000);
-        const json = {connectionId: 12345, span: 1000};
+        const json = {connectionId: 12345, timeSpan: 1000};
         return json;
     }
 
     async function disconnect(connectionId) {
         //const json = await callApiMethod('disconnect', {connectionId});
         await sleep(1000);
-        const json = {span: 1000};
+        const json = {timeSpan: 1000};
         return json;
     }
 
@@ -80,21 +80,21 @@ export default function API() {
         //const json = await callApiMethod('execute', {connectionId, sql});
 
         const stmts = parse(sql);
-        let json = {results: [], span: 1000};
+        let json = {results: [], timeSpan: 1000};
 
         await sleep(1000);
         stmts.map(stmt => {
 
             const mock = mockData.filter(m => m.sql.toUpperCase() === stmt.toUpperCase().trim())[0];
             if(!mock)  {
-                json.results.push({sql: stmt, error:{message: 'No such mock data'}, span: 23});
+                json.results.push({sql: stmt, error:{message: 'No such mock data'}, timeSpan: 23});
                 if(!json.error) json.error = {message: 'No such mock data', position: 0};
             }
             else {
                 const id = Math.floor(Math.random() * 10000);
                 if(!window.mockCurors) window.mockCurors = {};
                 window.mockCurors[id] = mock.rows;
-                json.results.push({sql: stmt, span: 23, cursors: [{
+                json.results.push({sql: stmt, timeSpan: 23, cursors: [{
                     name: 'cursor1' ,
                     id: id,
                     columns: mock.columns,
