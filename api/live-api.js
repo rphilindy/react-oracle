@@ -96,7 +96,6 @@ api.post("/execute",  async (req,res) => {
                     const cursorname = "Result";
                     
                     const columns = qresult.metaData.map(m => ({name: m.name, type: `${m.dbTypeName}${m.precision ?`(${m.precision})`:''}${m.byteSize ?`(${m.byteSize})`:''}${m.nullable?'':' NOT NULL'}`}));
-                    console.log(cursorid);
                     connection.cursors[cursorid] = {resultSet: qresult.resultSet, data: []};
                     result.cursors = [{name: cursorname, id: cursorid, columns}];
                 }
@@ -139,7 +138,6 @@ api.post("/get-rows",  async (req,res) => {
     const {data, resultSet} = connection.cursors[cursorId];
      
 
-    //connection.cursors[cursorid] = {resultSet: qresult.resultSet, data: []};
     let row;
     let startTime = new Date();
     let complete = resultSet === undefined;
@@ -170,13 +168,48 @@ api.post("/get-rows",  async (req,res) => {
     json.timeSpan = timeSpan;
 
     //clobs - return array with position instead of value
-    //json.rows.map((r,ri) => json.rows[ri]=r.map((c,ci) => c?.clob ? [ri,ci] : c));
+    json.rows.map((r,ri) => json.rows[ri]=r.map((c,ci) => c?._readableState ? [ri,ci] : c));
 
 
     res.json(json);
 
 });
 
+
+api.post("/get-lob",  async (req,res) => {
+
+    const {connectionId, cursorId, row, col} = req.body;
+
+    if(!connectionId || !connections[connectionId]) {
+        res.json({error: {message: 'no such connection'}});
+        return;
+    }
+
+    const connection = connections[connectionId];
+
+    if(!cursorId || !connection.cursors?.[cursorId]) {
+        res.json({error: {message: 'no such cursor'}});
+        return;
+    }
+
+    const {data} = connection.cursors[cursorId];
+    if(!data[row]){
+        res.json({error: {message: 'no such row'}});
+        return;
+    }
+    if(!data[row][col]){
+        res.json({error: {message: 'no such col'}});
+        return;
+    }
+
+    const lob = data[row][col];
+    const str = await lob.getData();
+    const json = {value: str};
+
+
+    res.json(json);
+
+});
 
 const parse = (sql) => {
 

@@ -105,7 +105,7 @@ export default function ResultViewer (props) {
 
         
         setClobOverlayState(null);
-        setClobOverlayState({target: e.target, text: JSON.stringify(json.value)});
+        setClobOverlayState({target: e.target, text: json.value});
     }
     
 
@@ -119,7 +119,7 @@ export default function ResultViewer (props) {
             rendercol = cellVal ? new Date(cellVal).toLocaleString().replace(',','') : '';
 
         //clobs when not displaying clobs    - comes in as array of [row,col]
-        if(type === "CLOB") {
+        if(type === "CLOB"|| type === "NCLOB") {
             if(cellVal !== null && Array.isArray(cellVal)) 
                 rendercol = <div style={{textDecoration: 'underline', cursor: 'pointer'}} onClick={(e)=>clobClick(e, state.selectedTab.id, cellVal[0], cellVal[1])}>View</div>;
         }
