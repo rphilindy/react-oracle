@@ -79,15 +79,6 @@ api.post("/execute",  async (req,res) => {
 
     let json = {results: []};
 
-//            json.results.push({sql: stmt, span: 23, cursors: [{
-            //     name: 'cursor1' ,
-            //     id: id,
-            //     columns: mock.columns,
-            // }]});
-
-//            json.results.push({sql: stmt, error:{message: 'No such mock data'}, span: 23});
-//            if(!json.error) json.error = {message: 'No such mock data', position: 0};
-
     const start = new Date();
     for(let stmt of stmts) {
 
@@ -97,17 +88,16 @@ api.post("/execute",  async (req,res) => {
             const hasResult = sql.search(/^\s*SELECT/i) !== -1;
             const qstart = new Date();
             try {
-                const qresult = await connection.connection.execute(stmt, {}, { resultSet: hasResult, extendedMetaData: hasResult });
+                const qresult = await connection.connection.execute(stmt, params || {}, { resultSet: hasResult, extendedMetaData: hasResult });
                 result.timeSpan = (new Date()) - qstart;
 
                 if(hasResult) {
                     const cursorid = qstart.getTime();
                     const cursorname = "Result";
                     
-                    console.log(qresult.metaData);
                     const columns = qresult.metaData.map(m => ({name: m.name, type: `${m.dbTypeName}${m.precision ?`(${m.precision})`:''}${m.byteSize ?`(${m.byteSize})`:''}${m.nullable?'':' NOT NULL'}`}));
-                    
-                    connection.cursors[cursorid] = qresult.resultSet;
+                    console.log(cursorid);
+                    connection.cursors[cursorid] = {resultSet: qresult.resultSet, data: []};
                     result.cursors = [{name: cursorname, id: cursorid, columns}];
                 }
                 else {
@@ -125,6 +115,64 @@ api.post("/execute",  async (req,res) => {
     }
 
     json.timeSpan = (new Date()) - start;
+    res.json(json);
+
+});
+
+
+api.post("/get-rows",  async (req,res) => {
+
+    const {connectionId, cursorId, startRow, numRows} = req.body;
+
+    if(!connectionId || !connections[connectionId]) {
+        res.json({error: {message: 'no such connection'}});
+        return;
+    }
+
+    const connection = connections[connectionId];
+
+    if(!cursorId || !connection.cursors?.[cursorId]) {
+        res.json({error: {message: 'no such cursor'}});
+        return;
+    }
+
+    const {data, resultSet} = connection.cursors[cursorId];
+     
+
+    //connection.cursors[cursorid] = {resultSet: qresult.resultSet, data: []};
+    let row;
+    let startTime = new Date();
+    let complete = resultSet === undefined;
+
+
+    //fetch data if needed
+    while(!complete && (startRow == -1 || data.length < startRow + numRows)) {
+        row = await resultSet.getRow();
+
+        if(!row) {
+            complete = true;
+            resultSet.close();
+            delete connection.cursors[cursorId].resultSet;
+        }
+        else {
+            //handle clob here
+            data.push(row);
+        }
+    }
+    let timeSpan = (new Date()) - startTime;
+
+    let json = {};
+    const startrow = startRow === -1 ? Math.floor(data.length / numRows) * numRows : startRow;
+    json.rows = data.slice(startrow, startrow + numRows);
+    if(complete)
+        json.rowCount = data.length;
+    json.startRow = startrow;
+    json.timeSpan = timeSpan;
+
+    //clobs - return array with position instead of value
+    //json.rows.map((r,ri) => json.rows[ri]=r.map((c,ci) => c?.clob ? [ri,ci] : c));
+
+
     res.json(json);
 
 });

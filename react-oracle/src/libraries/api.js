@@ -78,20 +78,22 @@ export default function API() {
     }
 
     async function getRows(connectionId, cursorId, startRow, numRows) {
-        //const json = await callApiMethod('get-rows', {connectionId, cursorId, numRows});
+        console.log("yo");
+        const json = await callApiMethod('get-rows', {connectionId, cursorId, startRow, numRows});
+        console.log(json);
         
-        let json ={};
-        let rows = window.mockCurors[cursorId];
-        let start = startRow;
-        if(start === -1) start=Math.floor(rows.length/numRows) * numRows;
-        json.rows = rows.slice(start, start + numRows);
-        if(startRow === -1 || start + numRows > rows.length)
-            json.rowCount = rows.length;
-        json.startRow = start;
-        json.span=25;
+        // let json ={};
+        // let rows = window.mockCurors[cursorId];
+        // let start = startRow;
+        // if(start === -1) start=Math.floor(rows.length/numRows) * numRows;
+        // json.rows = rows.slice(start, start + numRows);
+        // if(startRow === -1 || start + numRows > rows.length)
+        //     json.rowCount = rows.length;
+        // json.startRow = start;
+        // json.span=25;
 
-        //clobs - return array with position instead of value
-        json.rows.map((r,ri) => json.rows[ri]=r.map((c,ci) => c?.clob ? [ri,ci] : c));
+        // //clobs - return array with position instead of value
+        // json.rows.map((r,ri) => json.rows[ri]=r.map((c,ci) => c?.clob ? [ri,ci] : c));
 
         return json;
     }

@@ -2,7 +2,7 @@
 
 import React, {useState, useRef, useEffect} from 'react';
 import '../styles/results-viewer.css';
-import API from '../libraries/mock-api';
+import API from '../libraries/api';
 
 export default function ResultViewer (props) {
 
@@ -234,7 +234,7 @@ export default function ResultViewer (props) {
 
             //if error, display & quit
             if(json.error) {
-                handleError({heading: 'Fetch Error', message: json.error.message});
+                handleError(json.error.message);
                 return;
             }
 
